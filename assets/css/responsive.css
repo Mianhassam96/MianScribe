@@ -1,0 +1,302 @@
+/* ===================================
+   MianScribe - Responsive Styles
+   Mobile-first responsive design
+   =================================== */
+
+/* Tablet (768px and below) */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .header {
+        padding: 0.875rem;
+    }
+
+    .app-title {
+        font-size: 1.5rem;
+    }
+
+    .theme-toggle {
+        padding: 0.625rem 0.875rem;
+        font-size: 1.25rem;
+    }
+
+    .main-content {
+        padding: 1.5rem;
+    }
+
+    .text-input {
+        min-height: 220px;
+        padding: 1.25rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+    }
+
+    .stat-card {
+        padding: 1rem;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+    }
+
+    .limit-control {
+        flex-direction: row;
+        gap: 0.75rem;
+    }
+
+    .limit-control input {
+        width: 100px;
+    }
+
+    .controls {
+        gap: 0.75rem;
+    }
+
+    .btn {
+        padding: 0.875rem 1.25rem;
+        font-size: 0.95rem;
+    }
+}
+
+/* Mobile (480px and below) */
+@media (max-width: 480px) {
+    .container {
+        padding: 0.75rem;
+    }
+
+    .header {
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .app-title {
+        font-size: 1.25rem;
+    }
+
+    .theme-toggle {
+        padding: 0.5rem 0.75rem;
+        font-size: 1.25rem;
+    }
+
+    .main-content {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .text-input {
+        min-height: 200px;
+        padding: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .editor-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .counter-section {
+        margin-bottom: 1.5rem;
+    }
+
+    /* Stack stats vertically on very small screens */
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .stat-card {
+        padding: 0.75rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: left;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        margin-bottom: 0;
+    }
+
+    .stat-value {
+        font-size: 1.25rem;
+    }
+
+    /* Stack limit control vertically */
+    .limit-control {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .limit-control label {
+        font-size: 0.875rem;
+    }
+
+    .limit-control input {
+        width: 100%;
+        padding: 0.625rem 0.875rem;
+    }
+
+    /* Progress bar */
+    .progress-container {
+        height: 10px;
+    }
+
+    /* Buttons */
+    .controls {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .btn {
+        width: 100%;
+        min-width: auto;
+        padding: 0.875rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .btn-icon {
+        font-size: 1.1rem;
+    }
+
+    /* Footer */
+    .footer {
+        padding: 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    /* Toast */
+    .toast {
+        bottom: 1rem;
+        right: 1rem;
+        left: 1rem;
+        font-size: 0.875rem;
+        padding: 0.875rem 1.25rem;
+    }
+}
+
+/* Extra small devices (360px and below) */
+@media (max-width: 360px) {
+    .app-title {
+        font-size: 1.1rem;
+    }
+
+    .text-input {
+        min-height: 180px;
+        font-size: 0.85rem;
+    }
+
+    .stat-value {
+        font-size: 1.1rem;
+    }
+
+    .btn {
+        padding: 0.75rem 0.875rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* Landscape orientation adjustments */
+@media (max-height: 600px) and (orientation: landscape) {
+    .text-input {
+        min-height: 150px;
+    }
+
+    .main-content {
+        padding: 1rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ===================================
+   MianScribe Pro - Responsive Updates
+   =================================== */
+
+/* Tablet */
+@media (max-width: 768px) {
+    .main-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .analytics-panel {
+        order: -1;
+    }
+    
+    .writing-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .toolbar-section {
+        justify-content: space-between;
+    }
+    
+    .toolbar-section input[type="range"] {
+        flex: 1;
+        max-width: 200px;
+    }
+    
+    .export-controls {
+        grid-template-columns: 1fr;
+    }
+    
+    .header-left {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .pro-badge {
+        margin-left: 0;
+    }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .writing-toolbar {
+        padding: 0.75rem;
+    }
+    
+    .toolbar-section {
+        font-size: 0.8rem;
+    }
+    
+    .analytics-grid {
+        gap: 0.5rem;
+    }
+    
+    .analytics-card {
+        padding: 0.75rem;
+    }
+    
+    .analytics-value {
+        font-size: 1.1rem;
+    }
+    
+    .export-group,
+    .mode-group {
+        gap: 0.375rem;
+    }
+    
+    .btn-small {
+        padding: 0.625rem 0.875rem;
+        font-size: 0.8rem;
+    }
+    
+    .shortcuts-hint {
+        display: none;
+    }
+}

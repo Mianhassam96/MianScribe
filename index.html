@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MianScribe Pro - Advanced Writing Assistant with Analytics & Export">
+    <meta name="author" content="MianScribe">
+    <title>MianScribe Pro - Advanced Writing Assistant</title>
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/dark.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <h1 class="app-title">MianScribe <span class="pro-badge">Pro</span></h1>
+                <span class="last-saved" id="lastSaved" style="display:none;"></span>
+            </div>
+            <div class="header-right">
+                <button class="icon-btn" id="toggleAnalytics" title="Toggle Analytics Panel">📊</button>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Writing Toolbar -->
+        <div class="writing-toolbar">
+            <div class="toolbar-section">
+                <label>Font Size:</label>
+                <input type="range" id="fontSizeSlider" min="12" max="32" value="16" step="1">
+                <span id="fontSizeValue">16px</span>
+            </div>
+            
+            <div class="toolbar-section">
+                <label>Line Height:</label>
+                <input type="range" id="lineHeightSlider" min="1.2" max="2.5" value="1.6" step="0.1">
+                <span id="lineHeightValue">1.6</span>
+            </div>
+            
+            <div class="toolbar-section">
+                <label>Font:</label>
+                <select id="fontFamily">
+                    <option value="system">System</option>
+                    <option value="serif">Serif</option>
+                    <option value="sans">Sans-Serif</option>
+                    <option value="mono">Monospace</option>
+                </select>
+            </div>
+            
+            <div class="toolbar-section">
+                <label>
+                    <input type="checkbox" id="hardLimitToggle">
+                    Hard Limit
+                </label>
+            </div>
+        </div>
+
+        <div class="main-layout">
+            <!-- Main Content Card -->
+            <main class="main-content">
+                <!-- Text Editor Section -->
+                <section class="editor-section">
+                    <textarea 
+                        id="textInput" 
+                        class="text-input" 
+                        placeholder="Start typing or use the microphone to speak..."
+                        aria-label="Text input area"
+                        spellcheck="true"
+                    ></textarea>
+                </section>
+
+                <!-- Statistics Section -->
+                <section class="counter-section">
+                    <!-- Stats Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span class="stat-label">Characters</span>
+                            <span class="stat-value" id="charCount">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Words</span>
+                            <span class="stat-value" id="wordCount">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Remaining</span>
+                            <span class="stat-value" id="remainingCount">280</span>
+                        </div>
+                    </div>
+
+                    <!-- Character Limit Control -->
+                    <div class="limit-control">
+                        <label for="charLimit">Character Limit:</label>
+                        <input 
+                            type="number" 
+                            id="charLimit" 
+                            value="280" 
+                            min="1" 
+                            max="10000"
+                            step="10"
+                            aria-label="Set character limit"
+                        >
+                        <span class="limit-usage">Usage: <span id="limitUsage">0%</span></span>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progressBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </section>
+
+                <!-- Action Buttons -->
+                <section class="controls">
+                    <button class="btn btn-primary" id="copyBtn" title="Copy text (Ctrl+Shift+C)">
+                        <span class="btn-icon">📋</span>
+                        <span class="btn-text">Copy</span>
+                    </button>
+                    <button class="btn btn-secondary" id="resetBtn" title="Reset text (Ctrl+Shift+R)">
+                        <span class="btn-icon">🔄</span>
+                        <span class="btn-text">Reset</span>
+                    </button>
+                    <button class="btn btn-accent" id="micBtn" title="Speech to text">
+                        <span class="btn-icon">🎤</span>
+                        <span class="btn-text">Speak</span>
+                    </button>
+                    <button class="btn btn-success" id="saveBtn" title="Save (Ctrl+S)">
+                        <span class="btn-icon">💾</span>
+                        <span class="btn-text">Save</span>
+                    </button>
+                </section>
+
+                <!-- Export & Mode Controls -->
+                <section class="export-controls">
+                    <div class="export-group">
+                        <h3>Export</h3>
+                        <button class="btn-small" id="exportTxt" title="Export as TXT (Ctrl+E)">📄 TXT</button>
+                        <button class="btn-small" id="exportMd">📝 MD</button>
+                        <button class="btn-small" id="exportRtf">📃 RTF</button>
+                    </div>
+                    
+                    <div class="mode-group">
+                        <h3>Modes</h3>
+                        <button class="btn-small" id="fullscreenBtn" title="Fullscreen (F11)">⛶ Fullscreen</button>
+                        <button class="btn-small" id="distractionBtn" title="Focus Mode (Ctrl+D)">🎯 Focus Mode</button>
+                        <button class="btn-small btn-danger" id="clearSavedBtn" title="Clear saved data">🗑️ Clear Saved</button>
+                    </div>
+                </section>
+            </main>
+
+            <!-- Analytics Panel -->
+            <aside class="analytics-panel">
+                <h2 class="panel-title">📊 Analytics</h2>
+                
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <span class="analytics-label">Sentences</span>
+                        <span class="analytics-value" id="sentenceCount">0</span>
+                    </div>
+                    
+                    <div class="analytics-card">
+                        <span class="analytics-label">Paragraphs</span>
+                        <span class="analytics-value" id="paragraphCount">0</span>
+                    </div>
+                    
+                    <div class="analytics-card">
+                        <span class="analytics-label">Reading Time</span>
+                        <span class="analytics-value" id="readingTime">< 1 sec</span>
+                    </div>
+                    
+                    <div class="analytics-card">
+                        <span class="analytics-label">Avg Word Length</span>
+                        <span class="analytics-value" id="avgWordLength">0</span>
+                    </div>
+                    
+                    <div class="analytics-card full-width">
+                        <span class="analytics-label">Longest Sentence</span>
+                        <span class="analytics-value" id="longestSentence">0 words</span>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 MianScribe Pro. Built with ❤️ using Vanilla JavaScript</p>
+            <p class="shortcuts-hint">💡 Shortcuts: Ctrl+S (Save) | Ctrl+E (Export) | Ctrl+D (Focus) | Ctrl+/- (Font Size)</p>
+        </footer>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+    <!-- Main Application Script (ES6 Module) -->
+    <script type="module" src="assets/js/app.js"></script>
+</body>
+</html>
