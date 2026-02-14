@@ -1,4 +1,4 @@
-# MianScribe Pro - Advanced Writing Assistant
+# MianScribe
 
 A powerful, modern writing workspace built with vanilla JavaScript. Track your writing, analyze text, export in multiple formats, and customize your experience.
 
@@ -59,31 +59,6 @@ A powerful, modern writing workspace built with vanilla JavaScript. Track your w
 
 **No installation, no dependencies, no build process.**
 
-## 📁 Project Structure
-
-```
-mianscribe-pro/
-│
-├── index.html                 # Main HTML
-├── README.md                  # This file
-│
-└── assets/
-    ├── css/
-    │   ├── style.css         # Core styles
-    │   ├── dark.css          # Dark theme
-    │   └── responsive.css    # Mobile styles
-    │
-    └── js/
-        ├── app.js            # Main controller
-        ├── counter.js        # Character/word counting
-        ├── analytics.js      # Text analysis
-        ├── speech.js         # Speech-to-text
-        ├── theme.js          # Dark mode
-        ├── storage.js        # Auto-save/restore
-        ├── export.js         # File export
-        ├── controls.js       # Font/layout controls
-        └── utils.js          # Helper functions
-```
 
 ## 🎯 Use Cases
 
