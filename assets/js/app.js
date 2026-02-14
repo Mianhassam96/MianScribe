@@ -1,254 +1,430 @@
 /**
- * MianScribe Pro - Main Application Entry Point
- * Advanced writing assistant with analytics, export, and controls
+ * MianScribe Pro - Main Application
+ * Complete rewrite with all features working
  */
-
-import { initCounter } from './counter.js';
-import { initSpeech } from './speech.js';
-import { initTheme } from './theme.js';
-import { copyText, resetAll } from './utils.js';
-import { analyzeText, updateAnalyticsDisplay } from './analytics.js';
-import { initStorage, manualSave, clearSavedContent } from './storage.js';
-import { exportAsTxt, exportAsMd, exportAsRtf } from './export.js';
-import { initControls, toggleFullscreen, toggleDistractionFree, increaseFontSize, decreaseFontSize } from './controls.js';
 
 // DOM Elements
-const textInput = document.getElementById('textInput');
+const textArea = document.getElementById('textArea');
+const charCount = document.getElementById('charCount');
+const wordCount = document.getElementById('wordCount');
+const remaining = document.getElementById('remaining');
+const charLimit = document.getElementById('charLimit');
+const progress = document.getElementById('progress');
+const usage = document.getElementById('usage');
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
 const copyBtn = document.getElementById('copyBtn');
-const resetBtn = document.getElementById('resetBtn');
+const clearBtn = document.getElementById('clearBtn');
 const micBtn = document.getElementById('micBtn');
+const saveBtn = document.getElementById('saveBtn');
+const fontSize = document.getElementById('fontSize');
+const fontSizeVal = document.getElementById('fontSizeVal');
+const fontFamily = document.getElementById('fontFamily');
+const hardLimit = document.getElementById('hardLimit');
+const toast = document.getElementById('toast');
+const headerWords = document.getElementById('headerWords');
+const headerTime = document.getElementById('headerTime');
+const sentences = document.getElementById('sentences');
+const paragraphs = document.getElementById('paragraphs');
+const readTime = document.getElementById('readTime');
+const avgWord = document.getElementById('avgWord');
+const insightsList = document.getElementById('insightsList');
+const closeAnalytics = document.getElementById('closeAnalytics');
+const analyticsPanel = document.getElementById('analyticsPanel');
 
-/**
- * Initialize all application modules
- */
+// State
+let currentLimit = 280;
+let recognition = null;
+
+// Initialize
 function init() {
     console.log('🚀 MianScribe Pro initializing...');
     
-    try {
-        // Initialize core modules
-        initCounter(textInput);
-        console.log('✓ Counter module loaded');
-        
-        initSpeech(textInput, micBtn);
-        console.log('✓ Speech module loaded');
-        
-        initTheme();
-        console.log('✓ Theme module loaded');
-        
-        // Initialize new pro modules
-        initStorage(textInput);
-        console.log('✓ Storage module loaded');
-        
-        initControls();
-        console.log('✓ Controls module loaded');
-        
-        // Setup analytics updates
-        setupAnalytics();
-        console.log('✓ Analytics module loaded');
-        
-        // Setup event listeners
-        setupEventListeners();
-        console.log('✓ Event listeners attached');
-        
-        // Setup keyboard shortcuts
-        setupKeyboardShortcuts();
-        console.log('✓ Keyboard shortcuts enabled');
-        
-        // Focus textarea on load
-        textInput.focus();
-        
-        console.log('✅ MianScribe Pro ready!');
-    } catch (error) {
-        console.error('❌ Initialization error:', error);
-    }
+    // Load saved theme
+    loadTheme();
+    
+    // Load saved content
+    loadContent();
+    
+    // Setup event listeners
+    setupEventListeners();
+    
+    // Initial update
+    updateAll();
+    
+    // Setup speech recognition
+    setupSpeech();
+    
+    console.log('✅ Ready!');
 }
 
-/**
- * Setup analytics updates
- */
-function setupAnalytics() {
-    textInput.addEventListener('input', () => {
-        const analytics = analyzeText(textInput.value);
-        updateAnalyticsDisplay(analytics);
-        updateQuickStats(analytics);
-    });
-    
-    // Initial analytics
-    const analytics = analyzeText(textInput.value);
-    updateAnalyticsDisplay(analytics);
-    updateQuickStats(analytics);
-}
-
-/**
- * Update quick stats in header
- */
-function updateQuickStats(analytics) {
-    const quickWordCount = document.getElementById('quickWordCount');
-    const quickReadTime = document.getElementById('quickReadTime');
-    
-    if (quickWordCount) {
-        quickWordCount.textContent = analytics.words || 0;
-    }
-    
-    if (quickReadTime) {
-        const readingTime = analytics.readingTime || '0s';
-        quickReadTime.textContent = readingTime;
-    }
-}
-
-/**
- * Setup button event listeners
- */
+// Event Listeners
 function setupEventListeners() {
-    // Basic controls
-    if (copyBtn) copyBtn.addEventListener('click', () => copyText(textInput));
-    if (resetBtn) resetBtn.addEventListener('click', () => resetAll(textInput));
+    // Text input
+    textArea.addEventListener('input', handleInput);
     
-    // Export buttons
-    const exportTxtBtn = document.getElementById('exportTxt');
-    const exportMdBtn = document.getElementById('exportMd');
-    const exportRtfBtn = document.getElementById('exportRtf');
+    // Theme toggle
+    themeToggle.addEventListener('click', toggleTheme);
     
-    if (exportTxtBtn) exportTxtBtn.addEventListener('click', () => exportAsTxt(textInput.value));
-    if (exportMdBtn) exportMdBtn.addEventListener('click', () => exportAsMd(textInput.value));
-    if (exportRtfBtn) exportRtfBtn.addEventListener('click', () => exportAsRtf(textInput.value));
+    // Buttons
+    copyBtn.addEventListener('click', copyText);
+    clearBtn.addEventListener('click', clearText);
+    micBtn.addEventListener('click', toggleSpeech);
+    saveBtn.addEventListener('click', saveContent);
     
-    // Storage buttons
-    const saveBtn = document.getElementById('saveBtn');
-    const clearSavedBtn = document.getElementById('clearSavedBtn');
+    // Limit
+    charLimit.addEventListener('input', updateLimit);
     
-    if (saveBtn) saveBtn.addEventListener('click', () => manualSave(textInput.value));
-    if (clearSavedBtn) {
-        clearSavedBtn.addEventListener('click', () => {
-            if (confirm('Clear all saved data?')) {
-                clearSavedContent();
-                showToast('✅ Saved data cleared');
-            }
-        });
-    }
-    
-    // Mode toggles
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
-    const distractionBtn = document.getElementById('distractionBtn');
-    
-    if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen);
-    if (distractionBtn) distractionBtn.addEventListener('click', toggleDistractionFree);
-    
-    // Analytics panel toggle
-    const toggleAnalyticsBtn = document.getElementById('toggleAnalytics');
-    const closeAnalyticsBtn = document.getElementById('closeAnalytics');
-    
-    if (toggleAnalyticsBtn) {
-        toggleAnalyticsBtn.addEventListener('click', () => {
-            const panel = document.querySelector('.analytics-panel');
-            if (panel) {
-                panel.classList.toggle('collapsed');
-            }
-        });
-    }
-    
-    if (closeAnalyticsBtn) {
-        closeAnalyticsBtn.addEventListener('click', () => {
-            const panel = document.querySelector('.analytics-panel');
-            if (panel) {
-                panel.classList.add('collapsed');
-            }
-        });
-    }
-    
-    // Preset limit buttons
-    const presetButtons = document.querySelectorAll('.preset-btn');
-    presetButtons.forEach(btn => {
+    // Presets
+    document.querySelectorAll('.preset').forEach(btn => {
         btn.addEventListener('click', () => {
             const limit = btn.getAttribute('data-limit');
-            const charLimitInput = document.getElementById('charLimit');
-            if (charLimitInput && limit) {
-                charLimitInput.value = limit;
-                charLimitInput.dispatchEvent(new Event('input'));
-            }
+            charLimit.value = limit;
+            updateLimit();
         });
     });
-}
-
-/**
- * Setup keyboard shortcuts
- */
-function setupKeyboardShortcuts() {
-    document.addEventListener('keydown', (e) => {
-        // Don't trigger shortcuts if user is typing in an input (except textarea)
-        if (e.target.tagName === 'INPUT' && e.target.id !== 'textInput') {
-            return;
-        }
-        
-        // Ctrl/Cmd + Shift + C for copy
-        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'C') {
-            e.preventDefault();
-            copyText(textInput);
-        }
-        
-        // Ctrl/Cmd + Shift + R for reset
-        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'R') {
-            e.preventDefault();
-            resetAll(textInput);
-        }
-        
-        // Ctrl/Cmd + S for save
-        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-            e.preventDefault();
-            manualSave(textInput.value);
-        }
-        
-        // Ctrl/Cmd + E for export
-        if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
-            e.preventDefault();
-            exportAsTxt(textInput.value);
-        }
-        
-        // Ctrl/Cmd + D for distraction-free
-        if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
-            e.preventDefault();
-            toggleDistractionFree();
-        }
-        
-        // Ctrl/Cmd + = for increase font
-        if ((e.ctrlKey || e.metaKey) && (e.key === '=' || e.key === '+')) {
-            e.preventDefault();
-            increaseFontSize();
-        }
-        
-        // Ctrl/Cmd + - for decrease font
-        if ((e.ctrlKey || e.metaKey) && e.key === '-') {
-            e.preventDefault();
-            decreaseFontSize();
-        }
-        
-        // F11 for fullscreen
-        if (e.key === 'F11') {
-            e.preventDefault();
-            toggleFullscreen();
-        }
+    
+    // Font controls
+    fontSize.addEventListener('input', () => {
+        const size = fontSize.value;
+        textArea.style.fontSize = size + 'px';
+        fontSizeVal.textContent = size + 'px';
+        localStorage.setItem('fontSize', size);
     });
-}
-
-/**
- * Show toast notification
- * @param {string} message - Message to display
- */
-export function showToast(message) {
-    const toast = document.getElementById('toast');
-    if (!toast) return;
     
-    toast.textContent = message;
-    toast.classList.add('show');
+    fontFamily.addEventListener('change', () => {
+        const family = fontFamily.value;
+        if (family === 'system') {
+            textArea.style.fontFamily = 'inherit';
+        } else if (family === 'serif') {
+            textArea.style.fontFamily = 'Georgia, serif';
+        } else if (family === 'mono') {
+            textArea.style.fontFamily = 'monospace';
+        }
+        localStorage.setItem('fontFamily', family);
+    });
     
-    setTimeout(() => {
-        toast.classList.remove('show');
+    // Close analytics
+    closeAnalytics.addEventListener('click', () => {
+        analyticsPanel.classList.add('hidden');
+    });
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', handleShortcuts);
+    
+    // Auto-save
+    setInterval(() => {
+        if (textArea.value) {
+            localStorage.setItem('autoSave', textArea.value);
+            localStorage.setItem('autoSaveTime', new Date().toISOString());
+        }
     }, 3000);
 }
 
-// Initialize app when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-} else {
-    init();
+// Handle Input
+function handleInput() {
+    const text = textArea.value;
+    
+    // Hard limit
+    if (hardLimit.checked && text.length > currentLimit) {
+        textArea.value = text.substring(0, currentLimit);
+        return;
+    }
+    
+    updateAll();
 }
+
+// Update All Counters
+function updateAll() {
+    const text = textArea.value;
+    
+    // Character count
+    const chars = text.length;
+    charCount.textContent = chars.toLocaleString();
+    
+    // Word count
+    const words = countWords(text);
+    wordCount.textContent = words.toLocaleString();
+    headerWords.textContent = words;
+    
+    // Remaining
+    const rem = currentLimit - chars;
+    remaining.textContent = rem.toLocaleString();
+    
+    // Progress
+    const percent = Math.min((chars / currentLimit) * 100, 100);
+    progress.style.width = percent + '%';
+    progress.classList.remove('warning', 'danger');
+    if (percent >= 100) {
+        progress.classList.add('danger');
+    } else if (percent >= 90) {
+        progress.classList.add('warning');
+    }
+    
+    // Usage
+    usage.textContent = percent.toFixed(1) + '%';
+    
+    // Analytics
+    updateAnalytics(text, words);
+}
+
+// Count Words
+function countWords(text) {
+    const trimmed = text.trim();
+    if (!trimmed) return 0;
+    return trimmed.split(/\s+/).filter(w => w.length > 0).length;
+}
+
+// Update Analytics
+function updateAnalytics(text, words) {
+    // Sentences
+    const sentenceCount = text.split(/[.!?]+/).filter(s => s.trim().length > 0).length;
+    sentences.textContent = sentenceCount;
+    
+    // Paragraphs
+    const paragraphCount = text.split(/\n\n+/).filter(p => p.trim().length > 0).length;
+    paragraphs.textContent = paragraphCount;
+    
+    // Reading time
+    const minutes = Math.ceil(words / 200);
+    const time = minutes < 1 ? '< 1 min' : minutes + ' min';
+    readTime.textContent = time;
+    headerTime.textContent = minutes < 1 ? '0s' : minutes + 'm';
+    
+    // Average word length
+    if (words > 0) {
+        const totalChars = text.replace(/\s/g, '').length;
+        const avg = (totalChars / words).toFixed(1);
+        avgWord.textContent = avg;
+    } else {
+        avgWord.textContent = '0';
+    }
+    
+    // Insights
+    updateInsights(words, sentenceCount, paragraphCount);
+}
+
+// Update Insights
+function updateInsights(words, sentences, paragraphs) {
+    const insights = [];
+    
+    if (words === 0) {
+        insights.push('Start typing to see insights...');
+    } else {
+        if (words < 50) {
+            insights.push('Keep writing! You\'re just getting started.');
+        } else if (words < 200) {
+            insights.push('Good progress! You\'re building momentum.');
+        } else {
+            insights.push('Great work! You\'re on a roll!');
+        }
+        
+        if (sentences > 0) {
+            const avgWordsPerSentence = (words / sentences).toFixed(1);
+            if (avgWordsPerSentence > 25) {
+                insights.push('Consider shorter sentences for better readability.');
+            } else if (avgWordsPerSentence < 10) {
+                insights.push('Your sentences are concise and clear.');
+            }
+        }
+        
+        if (paragraphs > 5) {
+            insights.push('Well-structured with multiple paragraphs.');
+        }
+    }
+    
+    insightsList.innerHTML = insights.map(i => `<li>${i}</li>`).join('');
+}
+
+// Update Limit
+function updateLimit() {
+    const newLimit = parseInt(charLimit.value);
+    if (newLimit && newLimit > 0 && newLimit <= 10000) {
+        currentLimit = newLimit;
+        updateAll();
+    }
+}
+
+// Copy Text
+function copyText() {
+    if (!textArea.value) {
+        showToast('⚠️ Nothing to copy!');
+        return;
+    }
+    
+    navigator.clipboard.writeText(textArea.value)
+        .then(() => showToast('✅ Copied to clipboard!'))
+        .catch(() => {
+            textArea.select();
+            document.execCommand('copy');
+            showToast('✅ Copied to clipboard!');
+        });
+}
+
+// Clear Text
+function clearText() {
+    if (!textArea.value) {
+        showToast('⚠️ Already empty!');
+        return;
+    }
+    
+    if (textArea.value.length > 50) {
+        if (!confirm('Clear all text?')) return;
+    }
+    
+    textArea.value = '';
+    updateAll();
+    showToast('✅ Text cleared!');
+}
+
+// Save Content
+function saveContent() {
+    localStorage.setItem('savedContent', textArea.value);
+    localStorage.setItem('savedTime', new Date().toISOString());
+    showToast('✅ Content saved!');
+}
+
+// Load Content
+function loadContent() {
+    const saved = localStorage.getItem('autoSave') || localStorage.getItem('savedContent');
+    if (saved) {
+        textArea.value = saved;
+        updateAll();
+    }
+    
+    // Load font settings
+    const savedSize = localStorage.getItem('fontSize');
+    if (savedSize) {
+        fontSize.value = savedSize;
+        textArea.style.fontSize = savedSize + 'px';
+        fontSizeVal.textContent = savedSize + 'px';
+    }
+    
+    const savedFamily = localStorage.getItem('fontFamily');
+    if (savedFamily) {
+        fontFamily.value = savedFamily;
+        fontFamily.dispatchEvent(new Event('change'));
+    }
+}
+
+// Theme
+function toggleTheme() {
+    document.body.classList.toggle('dark');
+    const isDark = document.body.classList.contains('dark');
+    themeIcon.textContent = isDark ? '☀️' : '🌙';
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+}
+
+function loadTheme() {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.body.classList.add('dark');
+        themeIcon.textContent = '☀️';
+    }
+}
+
+// Speech Recognition
+function setupSpeech() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        micBtn.disabled = true;
+        micBtn.title = 'Speech recognition not supported';
+        return;
+    }
+    
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    
+    recognition.onresult = (event) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            transcript += event.results[i][0].transcript;
+        }
+        textArea.value = transcript;
+        updateAll();
+    };
+    
+    recognition.onerror = () => {
+        micBtn.classList.remove('listening');
+        showToast('❌ Speech recognition error');
+    };
+    
+    recognition.onend = () => {
+        micBtn.classList.remove('listening');
+    };
+}
+
+function toggleSpeech() {
+    if (!recognition) return;
+    
+    if (micBtn.classList.contains('listening')) {
+        recognition.stop();
+        micBtn.classList.remove('listening');
+    } else {
+        recognition.start();
+        micBtn.classList.add('listening');
+        showToast('🎤 Listening...');
+    }
+}
+
+// Export Functions
+document.getElementById('exportTxt').addEventListener('click', () => exportFile('txt'));
+document.getElementById('exportMd').addEventListener('click', () => exportFile('md'));
+document.getElementById('exportRtf').addEventListener('click', () => exportFile('rtf'));
+
+function exportFile(format) {
+    if (!textArea.value) {
+        showToast('⚠️ Nothing to export!');
+        return;
+    }
+    
+    let content = textArea.value;
+    let mimeType = 'text/plain';
+    let filename = `mianscribe-${Date.now()}.${format}`;
+    
+    if (format === 'rtf') {
+        content = `{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0 Times New Roman;}}\\f0\\fs24 ${content.replace(/\n/g, '\\par ')}}`;
+        mimeType = 'application/rtf';
+    }
+    
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    showToast(`✅ Exported as ${format.toUpperCase()}!`);
+}
+
+// Keyboard Shortcuts
+function handleShortcuts(e) {
+    if (e.target.tagName === 'INPUT' && e.target.id !== 'textArea') return;
+    
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        saveContent();
+    }
+    
+    if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+        e.preventDefault();
+        exportFile('txt');
+    }
+    
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'C') {
+        e.preventDefault();
+        copyText();
+    }
+}
+
+// Toast Notification
+function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// Start the app
+init();

@@ -3,329 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="MianScribe Pro - Advanced Writing Assistant with Analytics & Export">
-    <meta name="author" content="MianScribe">
-    <title>MianScribe Pro - Advanced Writing Assistant</title>
-    
-    <!-- Stylesheets -->
+    <meta name="description" content="MianScribe Pro - Advanced Writing Assistant">
+    <title>MianScribe Pro - Writing Assistant</title>
     <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/dark.css">
-    <link rel="stylesheet" href="assets/css/responsive.css">
 </head>
 <body>
     <!-- Animated Background -->
-    <div class="bg-animation">
-        <div class="gradient-orb orb-1"></div>
-        <div class="gradient-orb orb-2"></div>
-        <div class="gradient-orb orb-3"></div>
-    </div>
-
+    <div class="bg-gradient"></div>
+    
     <div class="container">
         <!-- Header -->
         <header class="header">
             <div class="header-left">
-                <div class="logo-wrapper">
+                <div class="logo">
                     <span class="logo-icon">✍️</span>
-                    <div class="title-group">
-                        <h1 class="app-title">MianScribe <span class="pro-badge">Pro</span></h1>
-                        <p class="app-tagline">Write Better, Faster, Smarter</p>
+                    <div>
+                        <h1 class="app-title">MianScribe <span class="badge">Pro</span></h1>
+                        <p class="tagline">Write Better, Faster</p>
                     </div>
                 </div>
-                <span class="last-saved" id="lastSaved" style="display:none;"></span>
             </div>
             <div class="header-right">
                 <div class="quick-stats">
-                    <div class="quick-stat">
-                        <span class="quick-stat-icon">📝</span>
-                        <span class="quick-stat-value" id="quickWordCount">0</span>
+                    <div class="stat-mini">
+                        <span class="icon">📝</span>
+                        <span id="headerWords">0</span>
                     </div>
-                    <div class="quick-stat">
-                        <span class="quick-stat-icon">⏱️</span>
-                        <span class="quick-stat-value" id="quickReadTime">0s</span>
+                    <div class="stat-mini">
+                        <span class="icon">⏱️</span>
+                        <span id="headerTime">0s</span>
                     </div>
                 </div>
-                <button class="icon-btn" id="toggleAnalytics" title="Toggle Analytics Panel">
-                    <span class="btn-icon-inner">📊</span>
-                </button>
-                <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
-                    <span class="theme-icon">🌙</span>
+                <button class="icon-btn" id="themeToggle" title="Toggle Theme">
+                    <span id="themeIcon">🌙</span>
                 </button>
             </div>
         </header>
 
-        <!-- Writing Toolbar -->
-        <div class="writing-toolbar">
-            <div class="toolbar-group">
-                <span class="toolbar-group-title">✨ Appearance</span>
-                <div class="toolbar-controls">
-                    <div class="toolbar-section">
-                        <label>Font Size:</label>
-                        <input type="range" id="fontSizeSlider" min="12" max="32" value="16" step="1">
-                        <span id="fontSizeValue" class="value-badge">16px</span>
+        <!-- Main Content -->
+        <div class="main-grid">
+            <!-- Editor Section -->
+            <main class="editor-card">
+                <!-- Toolbar -->
+                <div class="toolbar">
+                    <div class="toolbar-group">
+                        <label>Font Size</label>
+                        <input type="range" id="fontSize" min="14" max="24" value="16">
+                        <span id="fontSizeVal">16px</span>
                     </div>
-                    
-                    <div class="toolbar-section">
-                        <label>Line Height:</label>
-                        <input type="range" id="lineHeightSlider" min="1.2" max="2.5" value="1.6" step="0.1">
-                        <span id="lineHeightValue" class="value-badge">1.6</span>
-                    </div>
-                    
-                    <div class="toolbar-section">
-                        <label>Font:</label>
+                    <div class="toolbar-group">
+                        <label>Font</label>
                         <select id="fontFamily">
                             <option value="system">System</option>
                             <option value="serif">Serif</option>
-                            <option value="sans">Sans-Serif</option>
                             <option value="mono">Monospace</option>
                         </select>
                     </div>
-                </div>
-            </div>
-            
-            <div class="toolbar-divider"></div>
-            
-            <div class="toolbar-group">
-                <span class="toolbar-group-title">⚙️ Settings</span>
-                <div class="toolbar-controls">
-                    <div class="toolbar-section">
-                        <label class="toggle-label">
-                            <input type="checkbox" id="hardLimitToggle">
-                            <span class="toggle-text">Hard Limit</span>
-                        </label>
-                    </div>
-                    <div class="toolbar-section">
-                        <label class="toggle-label">
-                            <input type="checkbox" id="autoSaveToggle" checked>
-                            <span class="toggle-text">Auto-Save</span>
+                    <div class="toolbar-group">
+                        <label>
+                            <input type="checkbox" id="hardLimit">
+                            Hard Limit
                         </label>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="main-layout">
-            <!-- Main Content Card -->
-            <main class="main-content">
-                <!-- Text Editor Section -->
-                <section class="editor-section">
-                    <div class="editor-header">
-                        <h2 class="section-title">
-                            <span class="section-icon">📝</span>
-                            Your Writing Space
-                        </h2>
-                        <div class="editor-actions">
-                            <button class="mini-btn" id="undoBtn" title="Undo (Ctrl+Z)">↶</button>
-                            <button class="mini-btn" id="redoBtn" title="Redo (Ctrl+Y)">↷</button>
-                            <button class="mini-btn" id="clearFormatBtn" title="Clear Formatting">🧹</button>
-                        </div>
-                    </div>
-                    <textarea 
-                        id="textInput" 
-                        class="text-input" 
-                        placeholder="Start typing or use the microphone to speak... ✨"
-                        aria-label="Text input area"
-                        spellcheck="true"
-                    ></textarea>
-                    <div class="editor-footer">
-                        <span class="typing-indicator" id="typingIndicator">Ready to write</span>
-                        <span class="word-goal" id="wordGoal">Goal: 500 words</span>
-                    </div>
-                </section>
+                <!-- Text Area -->
+                <textarea 
+                    id="textArea" 
+                    class="text-area" 
+                    placeholder="Start typing your masterpiece... ✨"
+                    spellcheck="true"
+                ></textarea>
 
-                <!-- Statistics Section -->
-                <section class="counter-section">
-                    <h2 class="section-title">
-                        <span class="section-icon">📊</span>
-                        Live Statistics
-                    </h2>
-                    
-                    <!-- Stats Grid -->
-                    <div class="stats-grid">
-                        <div class="stat-card stat-primary">
-                            <span class="stat-icon">🔤</span>
-                            <div class="stat-content">
-                                <span class="stat-label">Characters</span>
-                                <span class="stat-value" id="charCount">0</span>
-                            </div>
-                        </div>
-                        <div class="stat-card stat-success">
-                            <span class="stat-icon">📝</span>
-                            <div class="stat-content">
-                                <span class="stat-label">Words</span>
-                                <span class="stat-value" id="wordCount">0</span>
-                            </div>
-                        </div>
-                        <div class="stat-card stat-warning">
-                            <span class="stat-icon">⏳</span>
-                            <div class="stat-content">
-                                <span class="stat-label">Remaining</span>
-                                <span class="stat-value" id="remainingCount">280</span>
-                            </div>
+                <!-- Stats Bar -->
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <span class="stat-icon">🔤</span>
+                        <div>
+                            <span class="stat-label">Characters</span>
+                            <span class="stat-value" id="charCount">0</span>
                         </div>
                     </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">📝</span>
+                        <div>
+                            <span class="stat-label">Words</span>
+                            <span class="stat-value" id="wordCount">0</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">⏳</span>
+                        <div>
+                            <span class="stat-label">Remaining</span>
+                            <span class="stat-value" id="remaining">280</span>
+                        </div>
+                    </div>
+                </div>
 
-                    <!-- Character Limit Control -->
-                    <div class="limit-control">
-                        <div class="limit-input-group">
-                            <label for="charLimit">Character Limit:</label>
-                            <input 
-                                type="number" 
-                                id="charLimit" 
-                                value="280" 
-                                min="1" 
-                                max="10000"
-                                step="10"
-                                aria-label="Set character limit"
-                            >
-                        </div>
-                        <div class="limit-presets">
-                            <button class="preset-btn" data-limit="140">Tweet</button>
-                            <button class="preset-btn" data-limit="280">X Post</button>
-                            <button class="preset-btn" data-limit="500">Short</button>
-                            <button class="preset-btn" data-limit="2000">Long</button>
-                        </div>
-                        <span class="limit-usage">Usage: <span id="limitUsage">0%</span></span>
+                <!-- Limit Control -->
+                <div class="limit-section">
+                    <div class="limit-input">
+                        <label>Character Limit</label>
+                        <input type="number" id="charLimit" value="280" min="10" max="10000">
                     </div>
+                    <div class="presets">
+                        <button class="preset" data-limit="140">Tweet</button>
+                        <button class="preset" data-limit="280">X Post</button>
+                        <button class="preset" data-limit="500">Short</button>
+                        <button class="preset" data-limit="2000">Long</button>
+                    </div>
+                    <div class="usage">
+                        <span>Usage: <strong id="usage">0%</strong></span>
+                    </div>
+                </div>
 
-                    <!-- Progress Bar -->
-                    <div class="progress-container">
-                        <div class="progress-bar" id="progressBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                </section>
+                <!-- Progress Bar -->
+                <div class="progress">
+                    <div class="progress-fill" id="progress"></div>
+                </div>
 
                 <!-- Action Buttons -->
-                <section class="controls">
-                    <h2 class="section-title">
-                        <span class="section-icon">🎯</span>
-                        Quick Actions
-                    </h2>
-                    <div class="controls-grid">
-                        <button class="btn btn-primary" id="copyBtn" title="Copy text (Ctrl+Shift+C)">
-                            <span class="btn-icon">�</span>
-                            <span class="btn-text">Copy</span>
-                        </button>
-                        <button class="btn btn-secondary" id="resetBtn" title="Reset text (Ctrl+Shift+R)">
-                            <span class="btn-icon">🔄</span>
-                            <span class="btn-text">Reset</span>
-                        </button>
-                        <button class="btn btn-accent" id="micBtn" title="Speech to text">
-                            <span class="btn-icon">🎤</span>
-                            <span class="btn-text">Speak</span>
-                        </button>
-                        <button class="btn btn-success" id="saveBtn" title="Save (Ctrl+S)">
-                            <span class="btn-icon">💾</span>
-                            <span class="btn-text">Save</span>
-                        </button>
-                    </div>
-                </section>
+                <div class="actions">
+                    <button class="btn btn-primary" id="copyBtn">
+                        <span>📋</span> Copy
+                    </button>
+                    <button class="btn btn-secondary" id="clearBtn">
+                        <span>🔄</span> Clear
+                    </button>
+                    <button class="btn btn-accent" id="micBtn">
+                        <span>🎤</span> Speak
+                    </button>
+                    <button class="btn btn-success" id="saveBtn">
+                        <span>�</span> Save
+                    </button>
+                </div>
 
-                <!-- Export & Mode Controls -->
-                <section class="export-controls">
-                    <div class="export-group">
-                        <h3>📤 Export Options</h3>
-                        <div class="button-group">
-                            <button class="btn-small" id="exportTxt" title="Export as TXT (Ctrl+E)">
-                                <span class="btn-small-icon">📄</span>
-                                <span>TXT</span>
-                            </button>
-                            <button class="btn-small" id="exportMd">
-                                <span class="btn-small-icon">�</span>
-                                <span>Markdown</span>
-                            </button>
-                            <button class="btn-small" id="exportRtf">
-                                <span class="btn-small-icon">📃</span>
-                                <span>RTF</span>
-                            </button>
-                        </div>
+                <!-- Export Section -->
+                <div class="export-section">
+                    <h3>📤 Export</h3>
+                    <div class="export-btns">
+                        <button class="btn-small" id="exportTxt">📄 TXT</button>
+                        <button class="btn-small" id="exportMd">📝 MD</button>
+                        <button class="btn-small" id="exportRtf">📃 RTF</button>
                     </div>
-                    
-                    <div class="mode-group">
-                        <h3>🎨 View Modes</h3>
-                        <div class="button-group">
-                            <button class="btn-small" id="fullscreenBtn" title="Fullscreen (F11)">
-                                <span class="btn-small-icon">⛶</span>
-                                <span>Fullscreen</span>
-                            </button>
-                            <button class="btn-small" id="distractionBtn" title="Focus Mode (Ctrl+D)">
-                                <span class="btn-small-icon">🎯</span>
-                                <span>Focus Mode</span>
-                            </button>
-                            <button class="btn-small btn-danger" id="clearSavedBtn" title="Clear saved data">
-                                <span class="btn-small-icon">🗑️</span>
-                                <span>Clear Data</span>
-                            </button>
-                        </div>
-                    </div>
-                </section>
+                </div>
             </main>
 
-            <!-- Analytics Panel -->
-            <aside class="analytics-panel">
+            <!-- Analytics Sidebar -->
+            <aside class="analytics-card" id="analyticsPanel">
                 <div class="panel-header">
-                    <h2 class="panel-title">
-                        <span class="panel-icon">📊</span>
-                        Advanced Analytics
-                    </h2>
-                    <button class="panel-close" id="closeAnalytics" title="Close panel">✕</button>
+                    <h2>📊 Analytics</h2>
+                    <button class="close-btn" id="closeAnalytics">✕</button>
                 </div>
-                
+
                 <div class="analytics-grid">
-                    <div class="analytics-card card-gradient-1">
+                    <div class="analytics-item">
                         <span class="analytics-icon">📄</span>
-                        <div class="analytics-content">
+                        <div>
                             <span class="analytics-label">Sentences</span>
-                            <span class="analytics-value" id="sentenceCount">0</span>
+                            <span class="analytics-value" id="sentences">0</span>
                         </div>
                     </div>
-                    
-                    <div class="analytics-card card-gradient-2">
+                    <div class="analytics-item">
                         <span class="analytics-icon">¶</span>
-                        <div class="analytics-content">
+                        <div>
                             <span class="analytics-label">Paragraphs</span>
-                            <span class="analytics-value" id="paragraphCount">0</span>
+                            <span class="analytics-value" id="paragraphs">0</span>
                         </div>
                     </div>
-                    
-                    <div class="analytics-card card-gradient-3">
+                    <div class="analytics-item">
                         <span class="analytics-icon">⏱️</span>
-                        <div class="analytics-content">
-                            <span class="analytics-label">Reading Time</span>
-                            <span class="analytics-value" id="readingTime">< 1 sec</span>
+                        <div>
+                            <span class="analytics-label">Read Time</span>
+                            <span class="analytics-value" id="readTime">0s</span>
                         </div>
                     </div>
-                    
-                    <div class="analytics-card card-gradient-4">
+                    <div class="analytics-item">
                         <span class="analytics-icon">📏</span>
-                        <div class="analytics-content">
-                            <span class="analytics-label">Avg Word Length</span>
-                            <span class="analytics-value" id="avgWordLength">0</span>
-                        </div>
-                    </div>
-                    
-                    <div class="analytics-card full-width card-gradient-5">
-                        <span class="analytics-icon">📝</span>
-                        <div class="analytics-content">
-                            <span class="analytics-label">Longest Sentence</span>
-                            <span class="analytics-value" id="longestSentence">0 words</span>
-                        </div>
-                    </div>
-
-                    <div class="analytics-card full-width card-gradient-6">
-                        <span class="analytics-icon">🎯</span>
-                        <div class="analytics-content">
-                            <span class="analytics-label">Writing Score</span>
-                            <span class="analytics-value" id="writingScore">--</span>
-                        </div>
-                        <div class="score-bar">
-                            <div class="score-fill" id="scoreFill"></div>
+                        <div>
+                            <span class="analytics-label">Avg Word</span>
+                            <span class="analytics-value" id="avgWord">0</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="insights-section">
-                    <h3 class="insights-title">💡 Quick Insights</h3>
-                    <ul class="insights-list" id="insightsList">
-                        <li>Start writing to see insights...</li>
+                <div class="insights">
+                    <h3>💡 Insights</h3>
+                    <ul id="insightsList">
+                        <li>Start typing to see insights...</li>
                     </ul>
                 </div>
             </aside>
@@ -333,31 +198,19 @@
 
         <!-- Footer -->
         <footer class="footer">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <p class="footer-brand">
-                        <span class="footer-logo">✍️</span>
-                        <strong>MianScribe Pro</strong> &copy; 2026 MultiMian
-                    </p>
-                    <p class="footer-tagline">Built with ❤️ using Vanilla JavaScript</p>
-                </div>
-                <div class="footer-section">
-                    <p class="shortcuts-title">⌨️ Keyboard Shortcuts</p>
-                    <div class="shortcuts-grid">
-                        <span class="shortcut"><kbd>Ctrl+S</kbd> Save</span>
-                        <span class="shortcut"><kbd>Ctrl+E</kbd> Export</span>
-                        <span class="shortcut"><kbd>Ctrl+D</kbd> Focus</span>
-                        <span class="shortcut"><kbd>Ctrl+/-</kbd> Font Size</span>
-                    </div>
-                </div>
-            </div>
+            <p>© 2026 MianScribe Pro • Built with ❤️</p>
+            <p class="shortcuts">
+                <kbd>Ctrl+S</kbd> Save • 
+                <kbd>Ctrl+E</kbd> Export • 
+                <kbd>Ctrl+D</kbd> Focus
+            </p>
         </footer>
     </div>
 
-    <!-- Toast Notification -->
-    <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
 
-    <!-- Main Application Script (ES6 Module) -->
-    <script type="module" src="assets/js/app.js"></script>
+    <!-- Script -->
+    <script src="assets/js/app.js"></script>
 </body>
 </html>
