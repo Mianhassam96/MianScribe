@@ -239,6 +239,60 @@ body.dark .bg-gradient {
     font-weight: 600;
 }
 
+/* Text Transform Tools */
+.transform-tools {
+    padding: 1.5rem 0;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 1.5rem;
+}
+
+.transform-tools h3 {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    color: var(--text);
+}
+
+.transform-btns {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.tool-btn {
+    padding: 0.5rem 1rem;
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tool-btn span {
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.tool-btn:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.tool-btn:hover span {
+    color: white;
+}
+
+.tool-btn:active {
+    transform: translateY(0);
+}
+
 /* Text Area */
 .text-area {
     width: 100%;

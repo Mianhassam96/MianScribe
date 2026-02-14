@@ -34,6 +34,13 @@ const analyticsPanel = document.getElementById('analyticsPanel');
 const fileInput = document.getElementById('fileInput');
 const importBtn = document.getElementById('importBtn');
 
+// Text transform buttons
+const upperCaseBtn = document.getElementById('upperCase');
+const lowerCaseBtn = document.getElementById('lowerCase');
+const capitalizeBtn = document.getElementById('capitalize');
+const sentenceCaseBtn = document.getElementById('sentenceCase');
+const toggleCaseBtn = document.getElementById('toggleCase');
+
 // State
 let currentLimit = 280;
 let recognition = null;
@@ -117,6 +124,13 @@ function setupEventListeners() {
     });
     
     fileInput.addEventListener('change', handleFileImport);
+    
+    // Text transform buttons
+    upperCaseBtn.addEventListener('click', () => transformText('upper'));
+    lowerCaseBtn.addEventListener('click', () => transformText('lower'));
+    capitalizeBtn.addEventListener('click', () => transformText('capitalize'));
+    sentenceCaseBtn.addEventListener('click', () => transformText('sentence'));
+    toggleCaseBtn.addEventListener('click', () => transformText('toggle'));
     
     // Keyboard shortcuts
     document.addEventListener('keydown', handleShortcuts);
@@ -525,6 +539,55 @@ function handleShortcuts(e) {
         e.preventDefault();
         copyText();
     }
+}
+
+// Text Transformation Functions
+function transformText(type) {
+    if (!textArea.value) {
+        showToast('⚠️ Nothing to transform!');
+        return;
+    }
+    
+    let text = textArea.value;
+    let transformed = '';
+    
+    switch(type) {
+        case 'upper':
+            transformed = text.toUpperCase();
+            showToast('✅ Converted to UPPERCASE');
+            break;
+            
+        case 'lower':
+            transformed = text.toLowerCase();
+            showToast('✅ Converted to lowercase');
+            break;
+            
+        case 'capitalize':
+            // Capitalize first letter of each word
+            transformed = text.replace(/\b\w/g, char => char.toUpperCase());
+            showToast('✅ Capitalized Each Word');
+            break;
+            
+        case 'sentence':
+            // Sentence case: capitalize first letter after . ! ?
+            transformed = text.toLowerCase().replace(/(^\w|\.\s+\w|\!\s+\w|\?\s+\w)/g, char => char.toUpperCase());
+            showToast('✅ Converted to Sentence case');
+            break;
+            
+        case 'toggle':
+            // Toggle case: swap upper and lower
+            transformed = text.split('').map(char => {
+                return char === char.toUpperCase() ? char.toLowerCase() : char.toUpperCase();
+            }).join('');
+            showToast('✅ Toggled case');
+            break;
+            
+        default:
+            return;
+    }
+    
+    textArea.value = transformed;
+    updateAll();
 }
 
 // Toast Notification
