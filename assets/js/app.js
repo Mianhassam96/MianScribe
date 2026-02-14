@@ -31,6 +31,8 @@ const avgWord = document.getElementById('avgWord');
 const insightsList = document.getElementById('insightsList');
 const closeAnalytics = document.getElementById('closeAnalytics');
 const analyticsPanel = document.getElementById('analyticsPanel');
+const fileInput = document.getElementById('fileInput');
+const importBtn = document.getElementById('importBtn');
 
 // State
 let currentLimit = 280;
@@ -108,6 +110,13 @@ function setupEventListeners() {
     closeAnalytics.addEventListener('click', () => {
         analyticsPanel.classList.add('hidden');
     });
+    
+    // Import file
+    importBtn.addEventListener('click', () => {
+        fileInput.click();
+    });
+    
+    fileInput.addEventListener('change', handleFileImport);
     
     // Keyboard shortcuts
     document.addEventListener('keydown', handleShortcuts);
@@ -384,7 +393,7 @@ function exportFile(format) {
     let filename = `mianscribe-${Date.now()}.${format}`;
     
     if (format === 'rtf') {
-        content = `{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0 Times New Roman;}}\\f0\\fs24 ${content.replace(/\n/g, '\\par ')}}`;
+        content = convertToRTF(content);
         mimeType = 'application/rtf';
     }
     
@@ -397,6 +406,105 @@ function exportFile(format) {
     URL.revokeObjectURL(url);
     
     showToast(`✅ Exported as ${format.toUpperCase()}!`);
+}
+
+// Import File Handler
+function handleFileImport(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const fileName = file.name.toLowerCase();
+    const fileExtension = fileName.split('.').pop();
+    
+    // Validate file type
+    if (!['txt', 'md', 'rtf'].includes(fileExtension)) {
+        showToast('❌ Unsupported file type! Use TXT, MD, or RTF.');
+        return;
+    }
+    
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+        let content = e.target.result;
+        
+        // Parse RTF if needed
+        if (fileExtension === 'rtf') {
+            content = parseRTF(content);
+        }
+        
+        // Confirm if there's existing content
+        if (textArea.value && textArea.value.length > 50) {
+            if (!confirm('Replace existing content with imported file?')) {
+                fileInput.value = ''; // Reset file input
+                return;
+            }
+        }
+        
+        textArea.value = content;
+        updateAll();
+        showToast(`✅ Imported ${fileName}!`);
+        
+        // Reset file input
+        fileInput.value = '';
+    };
+    
+    reader.onerror = () => {
+        showToast('❌ Error reading file!');
+        fileInput.value = '';
+    };
+    
+    reader.readAsText(file);
+}
+
+// Convert text to RTF format
+function convertToRTF(text) {
+    // Escape special RTF characters
+    text = text.replace(/\\/g, '\\\\');
+    text = text.replace(/\{/g, '\\{');
+    text = text.replace(/\}/g, '\\}');
+    
+    // Convert newlines to RTF paragraph breaks
+    text = text.replace(/\n/g, '\\par\n');
+    
+    // Create RTF document
+    const rtf = `{\\rtf1\\ansi\\deff0
+{\\fonttbl{\\f0\\fnil\\fcharset0 Arial;}}
+{\\colortbl;\\red0\\green0\\blue0;}
+\\viewkind4\\uc1\\pard\\cf1\\f0\\fs24
+${text}
+}`;
+    
+    return rtf;
+}
+
+// Parse RTF to plain text
+function parseRTF(rtf) {
+    // Remove RTF header and control words
+    let text = rtf.replace(/\\rtf1[^{]*\{/g, '');
+    
+    // Remove font table
+    text = text.replace(/\{\\fonttbl[^}]*\}/g, '');
+    
+    // Remove color table
+    text = text.replace(/\{\\colortbl[^}]*\}/g, '');
+    
+    // Remove other control groups
+    text = text.replace(/\{\\[^}]*\}/g, '');
+    
+    // Convert RTF paragraph breaks to newlines
+    text = text.replace(/\\par\s*/g, '\n');
+    
+    // Remove common RTF control words
+    text = text.replace(/\\[a-z]+\d*\s*/gi, '');
+    
+    // Remove remaining braces
+    text = text.replace(/[{}]/g, '');
+    
+    // Clean up extra whitespace
+    text = text.replace(/\n{3,}/g, '\n\n');
+    text = text.trim();
+    
+    return text;
 }
 
 // Keyboard Shortcuts

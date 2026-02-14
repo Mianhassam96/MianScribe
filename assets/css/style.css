@@ -457,17 +457,22 @@ body.dark .bg-gradient {
 .export-section {
     padding-top: 1.5rem;
     border-top: 2px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
 }
 
-.export-section h3 {
+.section-group h3 {
     font-size: 1rem;
     margin-bottom: 1rem;
     color: var(--text);
 }
 
-.export-btns {
+.export-btns,
+.import-btns {
     display: flex;
     gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .btn-small {
@@ -672,6 +677,11 @@ body.dark .bg-gradient {
     
     .usage {
         margin-left: 0;
+    }
+    
+    .export-section {
+        grid-template-columns: 1fr;
+        gap: 1rem;
     }
 }
 

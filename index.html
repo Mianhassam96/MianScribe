@@ -138,13 +138,22 @@
                     </button>
                 </div>
 
-                <!-- Export Section -->
+                <!-- Import/Export Section -->
                 <div class="export-section">
-                    <h3>📤 Export</h3>
-                    <div class="export-btns">
-                        <button class="btn-small" id="exportTxt">📄 TXT</button>
-                        <button class="btn-small" id="exportMd">📝 MD</button>
-                        <button class="btn-small" id="exportRtf">📃 RTF</button>
+                    <div class="section-group">
+                        <h3>� Import</h3>
+                        <div class="import-btns">
+                            <input type="file" id="fileInput" accept=".txt,.md,.rtf" style="display: none;">
+                            <button class="btn-small" id="importBtn">� Upload File</button>
+                        </div>
+                    </div>
+                    <div class="section-group">
+                        <h3>📤 Export</h3>
+                        <div class="export-btns">
+                            <button class="btn-small" id="exportTxt">📄 TXT</button>
+                            <button class="btn-small" id="exportMd">📝 MD</button>
+                            <button class="btn-small" id="exportRtf">📃 RTF</button>
+                        </div>
                     </div>
                 </div>
             </main>
