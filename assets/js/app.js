@@ -70,11 +70,30 @@ function setupAnalytics() {
     textInput.addEventListener('input', () => {
         const analytics = analyzeText(textInput.value);
         updateAnalyticsDisplay(analytics);
+        updateQuickStats(analytics);
     });
     
     // Initial analytics
     const analytics = analyzeText(textInput.value);
     updateAnalyticsDisplay(analytics);
+    updateQuickStats(analytics);
+}
+
+/**
+ * Update quick stats in header
+ */
+function updateQuickStats(analytics) {
+    const quickWordCount = document.getElementById('quickWordCount');
+    const quickReadTime = document.getElementById('quickReadTime');
+    
+    if (quickWordCount) {
+        quickWordCount.textContent = analytics.words || 0;
+    }
+    
+    if (quickReadTime) {
+        const readingTime = analytics.readingTime || '0s';
+        quickReadTime.textContent = readingTime;
+    }
 }
 
 /**
@@ -117,15 +136,38 @@ function setupEventListeners() {
     
     // Analytics panel toggle
     const toggleAnalyticsBtn = document.getElementById('toggleAnalytics');
+    const closeAnalyticsBtn = document.getElementById('closeAnalytics');
+    
     if (toggleAnalyticsBtn) {
         toggleAnalyticsBtn.addEventListener('click', () => {
             const panel = document.querySelector('.analytics-panel');
             if (panel) {
                 panel.classList.toggle('collapsed');
-                toggleAnalyticsBtn.textContent = panel.classList.contains('collapsed') ? '📊 Show Stats' : '📊 Hide Stats';
             }
         });
     }
+    
+    if (closeAnalyticsBtn) {
+        closeAnalyticsBtn.addEventListener('click', () => {
+            const panel = document.querySelector('.analytics-panel');
+            if (panel) {
+                panel.classList.add('collapsed');
+            }
+        });
+    }
+    
+    // Preset limit buttons
+    const presetButtons = document.querySelectorAll('.preset-btn');
+    presetButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const limit = btn.getAttribute('data-limit');
+            const charLimitInput = document.getElementById('charLimit');
+            if (charLimitInput && limit) {
+                charLimitInput.value = limit;
+                charLimitInput.dispatchEvent(new Event('input'));
+            }
+        });
+    });
 }
 
 /**
@@ -192,7 +234,7 @@ function setupKeyboardShortcuts() {
  * Show toast notification
  * @param {string} message - Message to display
  */
-function showToast(message) {
+export function showToast(message) {
     const toast = document.getElementById('toast');
     if (!toast) return;
     
