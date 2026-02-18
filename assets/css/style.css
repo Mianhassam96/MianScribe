@@ -116,13 +116,13 @@ body.dark .bg-gradient {
     background-clip: text;
 }
 
-.badge {
+/* .badge {
     background: linear-gradient(135deg, var(--accent), var(--secondary));
     color: white;
     padding: 0.25rem 0.75rem;
     border-radius: 6px;
     font-size: 0.875rem;
-    font-weight: 600;
+    font-weight: 600; */
 }
 
 .tagline {
