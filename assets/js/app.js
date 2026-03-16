@@ -66,12 +66,9 @@ const exportHtmlBtn     = document.getElementById('exportHtml');
 
 const toastEl           = document.getElementById('toast');
 
-// Writer's Corner & showcase
+// Writer's Corner
 const tipsTextEl        = document.getElementById('tipsText');
 const tipsBadgeEl       = document.getElementById('tipsBadge');
-const sessionWordsEl    = document.getElementById('sessionWords');
-const wpmValueEl        = document.getElementById('wpmValue');
-const uniqueWordsEl     = document.getElementById('uniqueWords');
 
 // Goal elements
 const goalBar           = document.getElementById('goalBar');
@@ -105,9 +102,7 @@ let wordGrowthChart = null;
 let wordGrowthData  = [];
 let wordGrowthTimer = null;
 let focusMode       = false;
-let sessionStartWords = 0;
-let sessionStartTime  = Date.now();
-let tipIndex          = 0;
+let tipIndex        = 0;
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 function init() {
@@ -122,8 +117,6 @@ function init() {
     updateDraftCount();
     updateLastSavedTime();
     initTips();
-    sessionStartWords = countWords(textArea.value);
-    sessionStartTime  = Date.now();
 }
 
 // ── Bind Events ───────────────────────────────────────────────────────────────
@@ -234,7 +227,6 @@ function updateAll() {
 
     updateGoalBar(words);
     updateAnalytics(text, words);
-    updateShowcase(text, words);
 }
 
 function countWords(text) {
@@ -799,23 +791,6 @@ function showTip() {
         tipsBadgeEl.textContent = tip.badge;
         tipsTextEl.style.opacity = '1';
     }, 300);
-}
-
-// ── Showcase Stats ────────────────────────────────────────────────────────────
-function updateShowcase(text, words) {
-    // Session words (words typed since page load)
-    const sessionDelta = Math.max(0, words - sessionStartWords);
-    if (sessionWordsEl) sessionWordsEl.textContent = sessionDelta.toLocaleString();
-
-    // Words per minute
-    const elapsedMin = (Date.now() - sessionStartTime) / 60000;
-    const wpm = elapsedMin > 0.1 ? Math.round(sessionDelta / elapsedMin) : 0;
-    if (wpmValueEl) wpmValueEl.textContent = wpm;
-
-    // Unique words
-    const unique = text.trim() === '' ? 0 :
-        new Set(text.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/).filter(Boolean)).size;
-    if (uniqueWordsEl) uniqueWordsEl.textContent = unique.toLocaleString();
 }
 
 // ── Start ─────────────────────────────────────────────────────────────────────
