@@ -7,10 +7,11 @@
     <title>MianScribe Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <div class="mesh-bg"></div>
-    <div class="container">
+    <div class="container" id="appContainer">
 
         <!-- HEADER -->
         <header class="header glass">
@@ -39,9 +40,15 @@
                         <span class="live-label">Chars</span>
                         <span class="live-value" id="headerChars">0</span>
                     </div>
+                    <div class="live-divider"></div>
+                    <div class="live-stat">
+                        <span class="live-label">Goal</span>
+                        <span class="live-value" id="headerGoal">—</span>
+                    </div>
                 </div>
             </div>
             <div class="header-right">
+                <button class="hdr-btn" id="focusModeBtn" title="Focus Mode (F11)">🧘 Focus</button>
                 <button class="hdr-btn" id="toggleAnalyticsBtn">📊 Analytics</button>
                 <button class="theme-btn" id="themeToggle"><span id="themeIcon">🌙</span></button>
             </div>
@@ -77,7 +84,11 @@
                             </label>
                         </div>
                     </div>
-                    <span class="saved-badge" id="savedBadge">● Auto-saved</span>
+                    <div class="toolbar-right">
+                        <span class="saved-badge" id="savedBadge">● Auto-saved</span>
+                        <span class="last-saved-time" id="lastSavedTime"></span>
+                        <button class="hdr-btn-sm" id="draftsBtn" title="Version History">🕐 Drafts <span class="draft-count" id="draftCount">0</span></button>
+                    </div>
                 </div>
 
                 <!-- Transform Bar -->
@@ -95,6 +106,18 @@
                 <!-- Textarea -->
                 <div class="editor-wrap">
                     <textarea id="textArea" class="text-area" placeholder="Start writing your masterpiece…" spellcheck="true"></textarea>
+                </div>
+
+                <!-- Writing Goal Bar -->
+                <div class="goal-bar" id="goalBar">
+                    <div class="goal-info">
+                        <span class="goal-label">🎯 Daily Goal</span>
+                        <span class="goal-progress-text" id="goalProgressText">0 / 1000 words</span>
+                        <span class="goal-pct" id="goalPct">0%</span>
+                    </div>
+                    <div class="goal-track">
+                        <div class="goal-fill" id="goalFill"></div>
+                    </div>
                 </div>
 
                 <!-- Stats Row -->
@@ -126,10 +149,12 @@
                 <div class="limit-row">
                     <div class="limit-left">
                         <span class="tool-label">Limit</span>
-                        <input type="number" id="charLimit" value="280" min="10" max="10000" class="limit-input">
+                        <input type="number" id="charLimit" value="280" min="10" max="100000" class="limit-input">
                         <div class="presets">
-                            <button class="preset" data-limit="140">Tweet</button>
-                            <button class="preset" data-limit="280">X Post</button>
+                            <button class="preset" data-limit="280" title="X / Twitter">𝕏</button>
+                            <button class="preset" data-limit="2200" title="Instagram Caption">📸</button>
+                            <button class="preset" data-limit="3000" title="LinkedIn">in</button>
+                            <button class="preset" data-limit="160" title="Meta Description">🔍</button>
                             <button class="preset" data-limit="500">Short</button>
                             <button class="preset" data-limit="2000">Long</button>
                         </div>
@@ -167,6 +192,7 @@
                             <button class="io-btn" id="exportTxt">📄 TXT</button>
                             <button class="io-btn" id="exportMd">📝 MD</button>
                             <button class="io-btn" id="exportRtf">📃 RTF</button>
+                            <button class="io-btn" id="exportHtml">🌐 HTML</button>
                         </div>
                     </div>
                 </div>
@@ -210,6 +236,26 @@
                     </div>
                 </div>
 
+                <!-- Readability -->
+                <div class="readability-section">
+                    <div class="readability-row">
+                        <span class="a-label">Readability</span>
+                        <span class="readability-badge" id="readabilityBadge">—</span>
+                    </div>
+                    <div class="readability-row">
+                        <span class="a-label">Passive Voice</span>
+                        <span class="a-value-sm" id="passiveCount">0</span>
+                    </div>
+                    <div class="readability-row">
+                        <span class="a-label">Long Sentences</span>
+                        <span class="a-value-sm" id="longSentCount">0</span>
+                    </div>
+                    <div class="readability-row">
+                        <span class="a-label">Keyword Density</span>
+                        <span class="a-value-sm" id="topKeyword">—</span>
+                    </div>
+                </div>
+
                 <!-- Score Ring -->
                 <div class="score-section">
                     <div class="score-ring-wrap">
@@ -237,6 +283,27 @@
                     </div>
                 </div>
 
+                <!-- Writing Goal Settings -->
+                <div class="goal-settings">
+                    <h3 class="insights-title">🎯 Writing Goal</h3>
+                    <div class="goal-inputs">
+                        <div class="goal-input-group">
+                            <label class="a-label">Daily Goal (words)</label>
+                            <input type="number" id="dailyGoalInput" class="limit-input" value="1000" min="10" max="100000">
+                        </div>
+                        <div class="goal-streak">
+                            <span class="a-label">Streak</span>
+                            <span class="streak-value" id="streakValue">🔥 0 days</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="charts-section">
+                    <h3 class="insights-title">📈 Word Growth</h3>
+                    <canvas id="wordGrowthChart" height="120"></canvas>
+                </div>
+
                 <!-- Insights -->
                 <div class="insights-section">
                     <h3 class="insights-title">💡 Insights</h3>
@@ -253,13 +320,39 @@
             <div class="footer-shortcuts">
                 <kbd>Ctrl+S</kbd> Save &nbsp;
                 <kbd>Ctrl+E</kbd> Export &nbsp;
-                <kbd>Ctrl+Shift+C</kbd> Copy
+                <kbd>Ctrl+Shift+C</kbd> Copy &nbsp;
+                <kbd>F11</kbd> Focus Mode
             </div>
         </footer>
     </div>
 
     <!-- Toast -->
     <div class="toast" id="toast"></div>
+
+    <!-- Drafts Modal -->
+    <div class="modal-overlay" id="draftsModal">
+        <div class="modal glass">
+            <div class="modal-hdr">
+                <h3 class="modal-title">🕐 Version History</h3>
+                <button class="close-btn" id="closeDrafts">✕</button>
+            </div>
+            <div class="drafts-list" id="draftsList"></div>
+        </div>
+    </div>
+
+    <!-- Focus Mode Overlay -->
+    <div class="focus-overlay" id="focusOverlay">
+        <div class="focus-header">
+            <span class="focus-stats" id="focusStats">Words: 0</span>
+            <button class="focus-exit-btn" id="focusExitBtn">✕ Exit Focus</button>
+        </div>
+        <textarea id="focusTextArea" class="focus-textarea" placeholder="Start writing…" spellcheck="true"></textarea>
+        <div class="focus-footer">
+            <div class="focus-progress-track">
+                <div class="focus-progress-fill" id="focusProgressFill"></div>
+            </div>
+        </div>
+    </div>
 
     <script src="assets/js/app.js"></script>
 </body>
