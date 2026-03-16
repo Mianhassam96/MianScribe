@@ -158,4 +158,4 @@ Having issues? Check:
 
 No frameworks. No dependencies. Just clean, modern web development.
 
-[GitHub Repository](https://github.com/Mianhassam96/MianScribe)
+[live Preview](https://mianscribe.vercel.app/)
