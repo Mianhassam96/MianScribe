@@ -66,6 +66,13 @@ const exportHtmlBtn     = document.getElementById('exportHtml');
 
 const toastEl           = document.getElementById('toast');
 
+// Writer's Corner & showcase
+const tipsTextEl        = document.getElementById('tipsText');
+const tipsBadgeEl       = document.getElementById('tipsBadge');
+const sessionWordsEl    = document.getElementById('sessionWords');
+const wpmValueEl        = document.getElementById('wpmValue');
+const uniqueWordsEl     = document.getElementById('uniqueWords');
+
 // Goal elements
 const goalBar           = document.getElementById('goalBar');
 const goalProgressText  = document.getElementById('goalProgressText');
@@ -98,6 +105,9 @@ let wordGrowthChart = null;
 let wordGrowthData  = [];
 let wordGrowthTimer = null;
 let focusMode       = false;
+let sessionStartWords = 0;
+let sessionStartTime  = Date.now();
+let tipIndex          = 0;
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 function init() {
@@ -111,6 +121,9 @@ function init() {
     updateStreak();
     updateDraftCount();
     updateLastSavedTime();
+    initTips();
+    sessionStartWords = countWords(textArea.value);
+    sessionStartTime  = Date.now();
 }
 
 // ── Bind Events ───────────────────────────────────────────────────────────────
@@ -221,6 +234,7 @@ function updateAll() {
 
     updateGoalBar(words);
     updateAnalytics(text, words);
+    updateShowcase(text, words);
 }
 
 function countWords(text) {
@@ -750,6 +764,58 @@ function showToast(msg) {
     toastEl.classList.add('show');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3000);
+}
+
+// ── Writer's Corner Tips ──────────────────────────────────────────────────────
+const TIPS = [
+    { badge: 'Tip',       text: 'Write first, edit later — silence your inner critic while drafting.' },
+    { badge: 'Habit',     text: 'Write at the same time every day to build an unstoppable routine.' },
+    { badge: 'Clarity',   text: 'If a sentence needs re-reading, it needs rewriting.' },
+    { badge: 'Flow',      text: 'Use the Pomodoro technique — 25 min writing, 5 min break.' },
+    { badge: 'Style',     text: 'Prefer active voice. "She wrote the code" beats "The code was written."' },
+    { badge: 'Hook',      text: 'Your first sentence should make the reader unable to stop.' },
+    { badge: 'Vocab',     text: 'Vary your sentence length — short punches. Then a longer, flowing one.' },
+    { badge: 'Edit',      text: 'Read your work aloud — your ears catch what your eyes miss.' },
+    { badge: 'Focus',     text: 'Close every tab. Your best writing happens in silence.' },
+    { badge: 'Mindset',   text: 'Every expert was once a beginner. Keep writing.' },
+    { badge: 'Structure', text: 'One idea per paragraph. Clarity is kindness to your reader.' },
+    { badge: 'Power',     text: 'The delete key is your best friend. Cut ruthlessly.' },
+];
+
+function initTips() {
+    showTip();
+    setInterval(() => {
+        tipIndex = (tipIndex + 1) % TIPS.length;
+        showTip();
+    }, 8000);
+}
+
+function showTip() {
+    const tip = TIPS[tipIndex];
+    if (!tipsTextEl) return;
+    tipsTextEl.style.opacity = '0';
+    setTimeout(() => {
+        tipsTextEl.textContent = tip.text;
+        tipsBadgeEl.textContent = tip.badge;
+        tipsTextEl.style.opacity = '1';
+    }, 300);
+}
+
+// ── Showcase Stats ────────────────────────────────────────────────────────────
+function updateShowcase(text, words) {
+    // Session words (words typed since page load)
+    const sessionDelta = Math.max(0, words - sessionStartWords);
+    if (sessionWordsEl) sessionWordsEl.textContent = sessionDelta.toLocaleString();
+
+    // Words per minute
+    const elapsedMin = (Date.now() - sessionStartTime) / 60000;
+    const wpm = elapsedMin > 0.1 ? Math.round(sessionDelta / elapsedMin) : 0;
+    if (wpmValueEl) wpmValueEl.textContent = wpm;
+
+    // Unique words
+    const unique = text.trim() === '' ? 0 :
+        new Set(text.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/).filter(Boolean)).size;
+    if (uniqueWordsEl) uniqueWordsEl.textContent = unique.toLocaleString();
 }
 
 // ── Start ─────────────────────────────────────────────────────────────────────
