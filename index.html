@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="MianScribe Pro - Advanced Writing Assistant">
-    <title>MianScribe Pro</title>
+    <meta name="description" content="MianScribe - Advanced Writing Assistant">
+    <title>MianScribe</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -17,9 +17,14 @@
         <header class="header glass">
             <div class="header-left">
                 <div class="logo">
-                    <div class="logo-ring"><span>✍️</span></div>
+                    <div class="logo-ring">
+                        <span class="logo-icon">✍️</span>
+                        <div class="logo-ring-pulse"></div>
+                    </div>
                     <div>
-                        <h1 class="app-title">MianScribe <span class="badge">Pro</span></h1>
+                        <h1 class="app-title">
+                            <span class="title-mian">Mian</span><span class="title-scribe">Scribe</span>
+                        </h1>
                         <p class="tagline">Write Better · Faster · Smarter</p>
                     </div>
                 </div>
@@ -311,18 +316,29 @@
                         <li>Start typing to see insights…</li>
                     </ul>
                 </div>
+
+                <!-- Keyboard Shortcuts -->
+                <div class="shortcuts-section">
+                    <h3 class="insights-title">⌨️ Shortcuts</h3>
+                    <div class="shortcuts-grid">
+                        <div class="shortcut-row"><kbd>Ctrl+S</kbd><span>Save</span></div>
+                        <div class="shortcut-row"><kbd>Ctrl+E</kbd><span>Export TXT</span></div>
+                        <div class="shortcut-row"><kbd>Ctrl+Shift+C</kbd><span>Copy</span></div>
+                        <div class="shortcut-row"><kbd>F11</kbd><span>Focus Mode</span></div>
+                        <div class="shortcut-row"><kbd>Esc</kbd><span>Exit Focus</span></div>
+                    </div>
+                </div>
             </aside>
         </div>
 
         <!-- FOOTER -->
         <footer class="footer">
-            <p>© 2026 <strong>MianScribe Pro</strong> · Built with ❤️ using Vanilla JS</p>
-            <div class="footer-shortcuts">
-                <kbd>Ctrl+S</kbd> Save &nbsp;
-                <kbd>Ctrl+E</kbd> Export &nbsp;
-                <kbd>Ctrl+Shift+C</kbd> Copy &nbsp;
-                <kbd>F11</kbd> Focus Mode
+            <div class="footer-brand">
+                <span class="footer-logo-text"><span class="footer-mian">Mian</span><span class="footer-scribe">Scribe</span></span>
+                <span class="footer-dot">·</span>
+                <span class="footer-by">by <a href="https://github.com/Mianhassam96" target="_blank" class="footer-link">MultiMian</a></span>
             </div>
+            <p class="footer-copy">© 2026 MultiMian · Crafted with ❤️ using Vanilla JS</p>
         </footer>
     </div>
 

@@ -738,9 +738,9 @@ function handleShortcuts(e) {
     if (e.key === 'Escape' && focusMode) { exitFocusMode(); return; }
     if (e.target.tagName === 'INPUT' && e.target !== textArea) return;
     const ctrl = e.ctrlKey || e.metaKey;
-    if (ctrl && e.key === 's')                   { e.preventDefault(); saveContent(); }
-    if (ctrl && e.key === 'e')                   { e.preventDefault(); exportFile('txt'); }
-    if (ctrl && e.shiftKey && e.key === 'C')     { e.preventDefault(); copyText(); }
+    if (ctrl && !e.shiftKey && e.key === 's') { e.preventDefault(); saveContent(); }
+    if (ctrl && !e.shiftKey && e.key === 'e') { e.preventDefault(); exportFile('txt'); }
+    if (ctrl && e.shiftKey && (e.key === 'c' || e.key === 'C')) { e.preventDefault(); copyText(); }
 }
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
