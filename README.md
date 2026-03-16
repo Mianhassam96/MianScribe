@@ -93,13 +93,7 @@ A powerful, modern writing workspace built with vanilla JavaScript. Track your w
 4. **Export**: Save your work in TXT, Markdown, or RTF format
 5. **Shortcuts**: Use keyboard shortcuts for faster workflow
 
-## 🔧 Customization
 
-### Change Default Limit
-Edit `assets/js/counter.js`:
-```javascript
-let currentLimit = 280; // Change this
-```
 
 
 
