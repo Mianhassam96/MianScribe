@@ -101,11 +101,6 @@ Edit `assets/js/counter.js`:
 let currentLimit = 280; // Change this
 ```
 
-### Change Auto-Save Interval
-Edit `assets/js/storage.js`:
-```javascript
-const AUTO_SAVE_INTERVAL = 3000; // milliseconds
-```
 
 
 ## 🎨 Technologies
