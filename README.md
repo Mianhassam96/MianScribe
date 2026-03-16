@@ -107,11 +107,6 @@ Edit `assets/js/storage.js`:
 const AUTO_SAVE_INTERVAL = 3000; // milliseconds
 ```
 
-### Change Reading Speed
-Edit `assets/js/analytics.js`:
-```javascript
-const wordsPerMinute = 200; // Change this
-```
 
 ## 🎨 Technologies
 
