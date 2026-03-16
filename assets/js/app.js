@@ -1,601 +1,587 @@
 /**
- * MianScribe Pro - Main Application
- * Complete rewrite with all features working
+ * MianScribe Pro — Complete Application
+ * All features: counting, theme, transform, import, export, speech, analytics
  */
 
-// DOM Elements
-const textArea = document.getElementById('textArea');
-const charCount = document.getElementById('charCount');
-const wordCount = document.getElementById('wordCount');
-const remaining = document.getElementById('remaining');
-const charLimit = document.getElementById('charLimit');
-const progress = document.getElementById('progress');
-const usage = document.getElementById('usage');
-const themeToggle = document.getElementById('themeToggle');
-const themeIcon = document.getElementById('themeIcon');
-const copyBtn = document.getElementById('copyBtn');
-const clearBtn = document.getElementById('clearBtn');
-const micBtn = document.getElementById('micBtn');
-const saveBtn = document.getElementById('saveBtn');
-const fontSize = document.getElementById('fontSize');
-const fontSizeVal = document.getElementById('fontSizeVal');
-const fontFamily = document.getElementById('fontFamily');
-const hardLimit = document.getElementById('hardLimit');
-const toast = document.getElementById('toast');
-const headerWords = document.getElementById('headerWords');
-const headerTime = document.getElementById('headerTime');
-const sentences = document.getElementById('sentences');
-const paragraphs = document.getElementById('paragraphs');
-const readTime = document.getElementById('readTime');
-const avgWord = document.getElementById('avgWord');
-const insightsList = document.getElementById('insightsList');
-const closeAnalytics = document.getElementById('closeAnalytics');
-const analyticsPanel = document.getElementById('analyticsPanel');
-const fileInput = document.getElementById('fileInput');
-const importBtn = document.getElementById('importBtn');
+// ── DOM refs ──────────────────────────────────────────────────────────────────
+const textArea          = document.getElementById('textArea');
+const charCountEl       = document.getElementById('charCount');
+const wordCountEl       = document.getElementById('wordCount');
+const remainingEl       = document.getElementById('remaining');
+const charLimitInput    = document.getElementById('charLimit');
+const progressFill      = document.getElementById('progress');
+const usageEl           = document.getElementById('usage');
+const headerWordsEl     = document.getElementById('headerWords');
+const headerTimeEl      = document.getElementById('headerTime');
+const headerCharsEl     = document.getElementById('headerChars');
 
-// Text transform buttons
-const upperCaseBtn = document.getElementById('upperCase');
-const lowerCaseBtn = document.getElementById('lowerCase');
-const capitalizeBtn = document.getElementById('capitalize');
-const sentenceCaseBtn = document.getElementById('sentenceCase');
-const toggleCaseBtn = document.getElementById('toggleCase');
+const themeToggleBtn    = document.getElementById('themeToggle');
+const themeIconEl       = document.getElementById('themeIcon');
 
-// State
+const copyBtn           = document.getElementById('copyBtn');
+const clearBtn          = document.getElementById('clearBtn');
+const micBtn            = document.getElementById('micBtn');
+const saveBtn           = document.getElementById('saveBtn');
+
+const fontSizeSlider    = document.getElementById('fontSize');
+const fontSizeValEl     = document.getElementById('fontSizeVal');
+const fontFamilySel     = document.getElementById('fontFamily');
+const hardLimitChk      = document.getElementById('hardLimit');
+const savedBadge        = document.getElementById('savedBadge');
+
+const upperCaseBtn      = document.getElementById('upperCase');
+const lowerCaseBtn      = document.getElementById('lowerCase');
+const capitalizeBtn     = document.getElementById('capitalize');
+const sentenceCaseBtn   = document.getElementById('sentenceCase');
+const toggleCaseBtn     = document.getElementById('toggleCase');
+
+const analyticsPanel    = document.getElementById('analyticsPanel');
+const toggleAnalyticsBtn= document.getElementById('toggleAnalyticsBtn');
+const closeAnalyticsBtn = document.getElementById('closeAnalytics');
+
+const sentencesEl       = document.getElementById('sentences');
+const paragraphsEl      = document.getElementById('paragraphs');
+const readTimeEl        = document.getElementById('readTime');
+const avgWordEl         = document.getElementById('avgWord');
+const insightsListEl    = document.getElementById('insightsList');
+const scoreNumEl        = document.getElementById('scoreNum');
+const scoreTitleEl      = document.getElementById('scoreTitle');
+const scoreDescEl       = document.getElementById('scoreDesc');
+const ringFillEl        = document.getElementById('ringFill');
+
+const fileInput         = document.getElementById('fileInput');
+const importBtn         = document.getElementById('importBtn');
+const exportTxtBtn      = document.getElementById('exportTxt');
+const exportMdBtn       = document.getElementById('exportMd');
+const exportRtfBtn      = document.getElementById('exportRtf');
+
+const toastEl           = document.getElementById('toast');
+
+// ── State ─────────────────────────────────────────────────────────────────────
 let currentLimit = 280;
-let recognition = null;
+let recognition  = null;
+let autoSaveTimer = null;
 
-// Initialize
+// ── Init ──────────────────────────────────────────────────────────────────────
 function init() {
-    console.log('🚀 MianScribe Pro initializing...');
-    
-    // Load saved theme
     loadTheme();
-    
-    // Load saved content
-    loadContent();
-    
-    // Setup event listeners
-    setupEventListeners();
-    
-    // Initial update
-    updateAll();
-    
-    // Setup speech recognition
+    loadPreferences();
+    loadSavedContent();
+    bindEvents();
     setupSpeech();
-    
-    console.log('✅ Ready!');
+    updateAll();
 }
 
-// Event Listeners
-function setupEventListeners() {
+// ── Bind Events ───────────────────────────────────────────────────────────────
+function bindEvents() {
     // Text input
-    textArea.addEventListener('input', handleInput);
-    
-    // Theme toggle
-    themeToggle.addEventListener('click', toggleTheme);
-    
-    // Buttons
+    textArea.addEventListener('input', onInput);
+
+    // Theme
+    themeToggleBtn.addEventListener('click', toggleTheme);
+
+    // Main actions
     copyBtn.addEventListener('click', copyText);
     clearBtn.addEventListener('click', clearText);
     micBtn.addEventListener('click', toggleSpeech);
     saveBtn.addEventListener('click', saveContent);
-    
+
     // Limit
-    charLimit.addEventListener('input', updateLimit);
-    
+    charLimitInput.addEventListener('input', onLimitChange);
+
     // Presets
-    document.querySelectorAll('.preset').forEach(btn => {
+    document.querySelectorAll('.preset').forEach(btn =>
         btn.addEventListener('click', () => {
-            const limit = btn.getAttribute('data-limit');
-            charLimit.value = limit;
-            updateLimit();
-        });
+            charLimitInput.value = btn.dataset.limit;
+            onLimitChange();
+        })
+    );
+
+    // Font size
+    fontSizeSlider.addEventListener('input', () => {
+        const v = fontSizeSlider.value;
+        textArea.style.fontSize = v + 'px';
+        fontSizeValEl.textContent = v + 'px';
+        localStorage.setItem('ms_fontSize', v);
     });
-    
-    // Font controls
-    fontSize.addEventListener('input', () => {
-        const size = fontSize.value;
-        textArea.style.fontSize = size + 'px';
-        fontSizeVal.textContent = size + 'px';
-        localStorage.setItem('fontSize', size);
+
+    // Font family
+    fontFamilySel.addEventListener('change', applyFont);
+
+    // Analytics toggle
+    toggleAnalyticsBtn.addEventListener('click', () => {
+        analyticsPanel.classList.toggle('hidden');
     });
-    
-    fontFamily.addEventListener('change', () => {
-        const family = fontFamily.value;
-        if (family === 'system') {
-            textArea.style.fontFamily = 'inherit';
-        } else if (family === 'serif') {
-            textArea.style.fontFamily = 'Georgia, serif';
-        } else if (family === 'mono') {
-            textArea.style.fontFamily = 'monospace';
-        }
-        localStorage.setItem('fontFamily', family);
-    });
-    
-    // Close analytics
-    closeAnalytics.addEventListener('click', () => {
+    closeAnalyticsBtn.addEventListener('click', () => {
         analyticsPanel.classList.add('hidden');
     });
-    
-    // Import file
-    importBtn.addEventListener('click', () => {
-        fileInput.click();
-    });
-    
-    fileInput.addEventListener('change', handleFileImport);
-    
-    // Text transform buttons
-    upperCaseBtn.addEventListener('click', () => transformText('upper'));
-    lowerCaseBtn.addEventListener('click', () => transformText('lower'));
-    capitalizeBtn.addEventListener('click', () => transformText('capitalize'));
-    sentenceCaseBtn.addEventListener('click', () => transformText('sentence'));
-    toggleCaseBtn.addEventListener('click', () => transformText('toggle'));
-    
+
+    // Text transforms
+    upperCaseBtn.addEventListener('click',    () => transform('upper'));
+    lowerCaseBtn.addEventListener('click',    () => transform('lower'));
+    capitalizeBtn.addEventListener('click',   () => transform('capitalize'));
+    sentenceCaseBtn.addEventListener('click', () => transform('sentence'));
+    toggleCaseBtn.addEventListener('click',   () => transform('toggle'));
+
+    // Import / Export
+    importBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', handleImport);
+    exportTxtBtn.addEventListener('click', () => exportFile('txt'));
+    exportMdBtn.addEventListener('click',  () => exportFile('md'));
+    exportRtfBtn.addEventListener('click', () => exportFile('rtf'));
+
     // Keyboard shortcuts
     document.addEventListener('keydown', handleShortcuts);
-    
-    // Auto-save
-    setInterval(() => {
-        if (textArea.value) {
-            localStorage.setItem('autoSave', textArea.value);
-            localStorage.setItem('autoSaveTime', new Date().toISOString());
-        }
-    }, 3000);
+
+    // Auto-save every 3s
+    setInterval(autoSave, 3000);
 }
 
-// Handle Input
-function handleInput() {
-    const text = textArea.value;
-    
-    // Hard limit
-    if (hardLimit.checked && text.length > currentLimit) {
-        textArea.value = text.substring(0, currentLimit);
-        return;
+// ── Input Handler ─────────────────────────────────────────────────────────────
+function onInput() {
+    if (hardLimitChk.checked && textArea.value.length > currentLimit) {
+        textArea.value = textArea.value.substring(0, currentLimit);
     }
-    
     updateAll();
 }
 
-// Update All Counters
+// ── Update All ────────────────────────────────────────────────────────────────
 function updateAll() {
-    const text = textArea.value;
-    
-    // Character count
+    const text  = textArea.value;
     const chars = text.length;
-    charCount.textContent = chars.toLocaleString();
-    
-    // Word count
     const words = countWords(text);
-    wordCount.textContent = words.toLocaleString();
-    headerWords.textContent = words;
-    
-    // Remaining
-    const rem = currentLimit - chars;
-    remaining.textContent = rem.toLocaleString();
-    
-    // Progress
-    const percent = Math.min((chars / currentLimit) * 100, 100);
-    progress.style.width = percent + '%';
-    progress.classList.remove('warning', 'danger');
-    if (percent >= 100) {
-        progress.classList.add('danger');
-    } else if (percent >= 90) {
-        progress.classList.add('warning');
-    }
-    
+    const pct   = currentLimit > 0 ? Math.min((chars / currentLimit) * 100, 100) : 0;
+    const rem   = currentLimit - chars;
+
+    // Counters
+    charCountEl.textContent    = chars.toLocaleString();
+    wordCountEl.textContent    = words.toLocaleString();
+    remainingEl.textContent    = rem.toLocaleString();
+    headerWordsEl.textContent  = words.toLocaleString();
+    headerCharsEl.textContent  = chars.toLocaleString();
+
+    // Progress bar
+    progressFill.style.width = pct + '%';
+    progressFill.classList.remove('warning', 'danger');
+    if (pct >= 100) progressFill.classList.add('danger');
+    else if (pct >= 80) progressFill.classList.add('warning');
+
     // Usage
-    usage.textContent = percent.toFixed(1) + '%';
-    
+    usageEl.textContent = pct.toFixed(1) + '%';
+
     // Analytics
     updateAnalytics(text, words);
 }
 
-// Count Words
+// ── Word Count ────────────────────────────────────────────────────────────────
 function countWords(text) {
-    const trimmed = text.trim();
-    if (!trimmed) return 0;
-    return trimmed.split(/\s+/).filter(w => w.length > 0).length;
+    const t = text.trim();
+    return t === '' ? 0 : t.split(/\s+/).filter(Boolean).length;
 }
 
-// Update Analytics
+// ── Analytics ─────────────────────────────────────────────────────────────────
 function updateAnalytics(text, words) {
-    // Sentences
-    const sentenceCount = text.split(/[.!?]+/).filter(s => s.trim().length > 0).length;
-    sentences.textContent = sentenceCount;
-    
-    // Paragraphs
-    const paragraphCount = text.split(/\n\n+/).filter(p => p.trim().length > 0).length;
-    paragraphs.textContent = paragraphCount;
-    
-    // Reading time
-    const minutes = Math.ceil(words / 200);
-    const time = minutes < 1 ? '< 1 min' : minutes + ' min';
-    readTime.textContent = time;
-    headerTime.textContent = minutes < 1 ? '0s' : minutes + 'm';
-    
-    // Average word length
-    if (words > 0) {
-        const totalChars = text.replace(/\s/g, '').length;
-        const avg = (totalChars / words).toFixed(1);
-        avgWord.textContent = avg;
-    } else {
-        avgWord.textContent = '0';
-    }
-    
+    // Sentences: split on . ! ? followed by space or end
+    const sentCount = text.trim() === ''
+        ? 0
+        : text.split(/[.!?]+/).filter(s => s.trim().length > 0).length;
+
+    // Paragraphs: split on double newline
+    const paraCount = text.trim() === ''
+        ? 0
+        : text.split(/\n\s*\n/).filter(p => p.trim().length > 0).length || (text.trim() ? 1 : 0);
+
+    // Reading time (200 wpm)
+    const mins = words / 200;
+    let timeStr;
+    if (words === 0)       timeStr = '—';
+    else if (mins < 1)     timeStr = '< 1 min';
+    else                   timeStr = Math.ceil(mins) + ' min';
+
+    const headerTimeStr = words === 0 ? '0s' : (mins < 1 ? '<1m' : Math.ceil(mins) + 'm');
+
+    // Avg word length
+    const avgLen = words > 0
+        ? (text.replace(/\s+/g, '').length / words).toFixed(1)
+        : '0';
+
+    // Update DOM
+    sentencesEl.textContent  = sentCount;
+    paragraphsEl.textContent = paraCount;
+    readTimeEl.textContent   = timeStr;
+    avgWordEl.textContent    = avgLen;
+    headerTimeEl.textContent = headerTimeStr;
+
+    // Score (0–100)
+    const score = calcScore(words, sentCount, paraCount);
+    updateScore(score);
+
     // Insights
-    updateInsights(words, sentenceCount, paragraphCount);
+    updateInsights(words, sentCount, paraCount, avgLen);
 }
 
-// Update Insights
-function updateInsights(words, sentences, paragraphs) {
-    const insights = [];
-    
-    if (words === 0) {
-        insights.push('Start typing to see insights...');
-    } else {
-        if (words < 50) {
-            insights.push('Keep writing! You\'re just getting started.');
-        } else if (words < 200) {
-            insights.push('Good progress! You\'re building momentum.');
-        } else {
-            insights.push('Great work! You\'re on a roll!');
-        }
-        
-        if (sentences > 0) {
-            const avgWordsPerSentence = (words / sentences).toFixed(1);
-            if (avgWordsPerSentence > 25) {
-                insights.push('Consider shorter sentences for better readability.');
-            } else if (avgWordsPerSentence < 10) {
-                insights.push('Your sentences are concise and clear.');
-            }
-        }
-        
-        if (paragraphs > 5) {
-            insights.push('Well-structured with multiple paragraphs.');
-        }
+// ── Writing Score ─────────────────────────────────────────────────────────────
+function calcScore(words, sentences, paragraphs) {
+    if (words === 0) return 0;
+    let score = 0;
+
+    // Word count contribution (max 40)
+    score += Math.min(words / 5, 40);
+
+    // Sentence variety (max 30)
+    if (sentences > 0) {
+        const avgWPS = words / sentences;
+        if (avgWPS >= 10 && avgWPS <= 20) score += 30;
+        else if (avgWPS >= 5 && avgWPS <= 30) score += 20;
+        else score += 10;
     }
-    
-    insightsList.innerHTML = insights.map(i => `<li>${i}</li>`).join('');
+
+    // Paragraph structure (max 30)
+    if (paragraphs >= 3) score += 30;
+    else if (paragraphs === 2) score += 20;
+    else if (paragraphs === 1) score += 10;
+
+    return Math.min(Math.round(score), 100);
 }
 
-// Update Limit
-function updateLimit() {
-    const newLimit = parseInt(charLimit.value);
-    if (newLimit && newLimit > 0 && newLimit <= 10000) {
-        currentLimit = newLimit;
+function updateScore(score) {
+    scoreNumEl.textContent = score;
+
+    // Ring: circumference = 2π×32 ≈ 201
+    const offset = 201 - (201 * score / 100);
+    ringFillEl.style.strokeDashoffset = offset;
+
+    if (score === 0) {
+        scoreTitleEl.textContent = 'Start Writing';
+        scoreDescEl.textContent  = 'Your writing score will appear as you type.';
+    } else if (score < 30) {
+        scoreTitleEl.textContent = 'Getting Started';
+        scoreDescEl.textContent  = 'Keep going — you\'re building momentum!';
+    } else if (score < 60) {
+        scoreTitleEl.textContent = 'Good Progress';
+        scoreDescEl.textContent  = 'Nice work! Add more structure to improve.';
+    } else if (score < 85) {
+        scoreTitleEl.textContent = 'Great Writing';
+        scoreDescEl.textContent  = 'Well-structured and engaging content!';
+    } else {
+        scoreTitleEl.textContent = 'Excellent!';
+        scoreDescEl.textContent  = 'Outstanding writing with great structure.';
+    }
+}
+
+// ── Insights ──────────────────────────────────────────────────────────────────
+function updateInsights(words, sentences, paragraphs, avgLen) {
+    const tips = [];
+
+    if (words === 0) {
+        tips.push('Start typing to see insights…');
+    } else {
+        if (words < 50)       tips.push('🚀 Just getting started — keep writing!');
+        else if (words < 200) tips.push('📈 Good momentum! You\'re building up nicely.');
+        else if (words < 500) tips.push('🔥 Great progress! You\'re on a roll.');
+        else                  tips.push('🏆 Impressive! That\'s a substantial piece.');
+
+        if (sentences > 0) {
+            const avg = words / sentences;
+            if (avg > 25)      tips.push('✂️ Try shorter sentences for better readability.');
+            else if (avg < 8)  tips.push('💡 Consider combining some short sentences.');
+            else               tips.push('✅ Sentence length looks great!');
+        }
+
+        if (paragraphs === 1 && words > 100)
+            tips.push('📋 Break your text into paragraphs for better structure.');
+        else if (paragraphs >= 3)
+            tips.push('📑 Well-structured with multiple paragraphs.');
+
+        if (parseFloat(avgLen) > 7)
+            tips.push('📚 You\'re using complex vocabulary — great!');
+    }
+
+    insightsListEl.innerHTML = tips.map(t => `<li>${t}</li>`).join('');
+}
+
+// ── Limit Change ──────────────────────────────────────────────────────────────
+function onLimitChange() {
+    const v = parseInt(charLimitInput.value);
+    if (v && v >= 1 && v <= 10000) {
+        currentLimit = v;
         updateAll();
     }
 }
 
-// Copy Text
+// ── Copy ──────────────────────────────────────────────────────────────────────
 function copyText() {
-    if (!textArea.value) {
-        showToast('⚠️ Nothing to copy!');
-        return;
-    }
-    
+    if (!textArea.value) { showToast('⚠️ Nothing to copy!'); return; }
     navigator.clipboard.writeText(textArea.value)
         .then(() => showToast('✅ Copied to clipboard!'))
         .catch(() => {
             textArea.select();
             document.execCommand('copy');
-            showToast('✅ Copied to clipboard!');
+            showToast('✅ Copied!');
         });
 }
 
-// Clear Text
+// ── Clear ─────────────────────────────────────────────────────────────────────
 function clearText() {
-    if (!textArea.value) {
-        showToast('⚠️ Already empty!');
-        return;
-    }
-    
-    if (textArea.value.length > 50) {
-        if (!confirm('Clear all text?')) return;
-    }
-    
+    if (!textArea.value) { showToast('⚠️ Already empty!'); return; }
+    if (textArea.value.length > 50 && !confirm('Clear all text?')) return;
     textArea.value = '';
     updateAll();
-    showToast('✅ Text cleared!');
+    showToast('🗑️ Cleared!');
 }
 
-// Save Content
+// ── Save ──────────────────────────────────────────────────────────────────────
 function saveContent() {
-    localStorage.setItem('savedContent', textArea.value);
-    localStorage.setItem('savedTime', new Date().toISOString());
-    showToast('✅ Content saved!');
+    localStorage.setItem('ms_content', textArea.value);
+    localStorage.setItem('ms_savedAt', new Date().toISOString());
+    showSavedBadge();
+    showToast('💾 Saved!');
 }
 
-// Load Content
-function loadContent() {
-    const saved = localStorage.getItem('autoSave') || localStorage.getItem('savedContent');
-    if (saved) {
-        textArea.value = saved;
-        updateAll();
+function autoSave() {
+    if (!textArea.value) return;
+    localStorage.setItem('ms_content', textArea.value);
+    showSavedBadge();
+}
+
+function showSavedBadge() {
+    savedBadge.classList.add('visible');
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(() => savedBadge.classList.remove('visible'), 2000);
+}
+
+// ── Load ──────────────────────────────────────────────────────────────────────
+function loadSavedContent() {
+    const saved = localStorage.getItem('ms_content');
+    if (saved) { textArea.value = saved; updateAll(); }
+}
+
+function loadPreferences() {
+    const size = localStorage.getItem('ms_fontSize');
+    if (size) {
+        fontSizeSlider.value = size;
+        textArea.style.fontSize = size + 'px';
+        fontSizeValEl.textContent = size + 'px';
     }
-    
-    // Load font settings
-    const savedSize = localStorage.getItem('fontSize');
-    if (savedSize) {
-        fontSize.value = savedSize;
-        textArea.style.fontSize = savedSize + 'px';
-        fontSizeVal.textContent = savedSize + 'px';
-    }
-    
-    const savedFamily = localStorage.getItem('fontFamily');
-    if (savedFamily) {
-        fontFamily.value = savedFamily;
-        fontFamily.dispatchEvent(new Event('change'));
+
+    const family = localStorage.getItem('ms_fontFamily');
+    if (family) {
+        fontFamilySel.value = family;
+        applyFont();
     }
 }
 
-// Theme
+function applyFont() {
+    const v = fontFamilySel.value;
+    const map = { inter: "'Inter', sans-serif", serif: 'Georgia, serif', mono: "'Courier New', monospace" };
+    textArea.style.fontFamily = map[v] || 'inherit';
+    localStorage.setItem('ms_fontFamily', v);
+}
+
+// ── Theme ─────────────────────────────────────────────────────────────────────
 function toggleTheme() {
     document.body.classList.toggle('dark');
-    const isDark = document.body.classList.contains('dark');
-    themeIcon.textContent = isDark ? '☀️' : '🌙';
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    const dark = document.body.classList.contains('dark');
+    themeIconEl.textContent = dark ? '☀️' : '🌙';
+    localStorage.setItem('ms_theme', dark ? 'dark' : 'light');
 }
 
 function loadTheme() {
-    const saved = localStorage.getItem('theme');
-    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    const saved = localStorage.getItem('ms_theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (saved === 'dark' || (!saved && prefersDark)) {
         document.body.classList.add('dark');
-        themeIcon.textContent = '☀️';
+        themeIconEl.textContent = '☀️';
     }
 }
 
-// Speech Recognition
+// ── Text Transform ────────────────────────────────────────────────────────────
+function transform(type) {
+    if (!textArea.value) { showToast('⚠️ Nothing to transform!'); return; }
+
+    const text = textArea.value;
+    let result = text;
+
+    switch (type) {
+        case 'upper':
+            result = text.toUpperCase();
+            showToast('🔠 UPPERCASE applied');
+            break;
+        case 'lower':
+            result = text.toLowerCase();
+            showToast('🔡 lowercase applied');
+            break;
+        case 'capitalize':
+            result = text.replace(/\b\w/g, c => c.toUpperCase());
+            showToast('🔤 Capitalize Words applied');
+            break;
+        case 'sentence':
+            result = text.toLowerCase()
+                .replace(/(^\s*\w)/m, c => c.toUpperCase())
+                .replace(/([.!?]\s+)(\w)/g, (_, p, c) => p + c.toUpperCase());
+            showToast('📝 Sentence case applied');
+            break;
+        case 'toggle':
+            result = text.split('').map(c =>
+                c === c.toUpperCase() ? c.toLowerCase() : c.toUpperCase()
+            ).join('');
+            showToast('🔀 Case toggled');
+            break;
+    }
+
+    textArea.value = result;
+    updateAll();
+}
+
+// ── Speech ────────────────────────────────────────────────────────────────────
 function setupSpeech() {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
         micBtn.disabled = true;
-        micBtn.title = 'Speech recognition not supported';
+        micBtn.title = 'Speech not supported in this browser';
         return;
     }
-    
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recognition = new SpeechRecognition();
+    recognition = new SR();
     recognition.continuous = true;
     recognition.interimResults = true;
-    
-    recognition.onresult = (event) => {
-        let transcript = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-            transcript += event.results[i][0].transcript;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = e => {
+        let final = '', interim = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+            if (e.results[i].isFinal) final += e.results[i][0].transcript;
+            else interim += e.results[i][0].transcript;
         }
-        textArea.value = transcript;
-        updateAll();
+        if (final) {
+            textArea.value += final + ' ';
+            updateAll();
+        }
     };
-    
+
     recognition.onerror = () => {
         micBtn.classList.remove('listening');
-        showToast('❌ Speech recognition error');
+        showToast('❌ Speech error — try again');
     };
-    
-    recognition.onend = () => {
-        micBtn.classList.remove('listening');
-    };
+
+    recognition.onend = () => micBtn.classList.remove('listening');
 }
 
 function toggleSpeech() {
     if (!recognition) return;
-    
     if (micBtn.classList.contains('listening')) {
         recognition.stop();
         micBtn.classList.remove('listening');
+        showToast('🎤 Stopped listening');
     } else {
         recognition.start();
         micBtn.classList.add('listening');
-        showToast('🎤 Listening...');
+        showToast('🎤 Listening… speak now');
     }
 }
 
-// Export Functions
-document.getElementById('exportTxt').addEventListener('click', () => exportFile('txt'));
-document.getElementById('exportMd').addEventListener('click', () => exportFile('md'));
-document.getElementById('exportRtf').addEventListener('click', () => exportFile('rtf'));
-
-function exportFile(format) {
-    if (!textArea.value) {
-        showToast('⚠️ Nothing to export!');
-        return;
-    }
-    
-    let content = textArea.value;
-    let mimeType = 'text/plain';
-    let filename = `mianscribe-${Date.now()}.${format}`;
-    
-    if (format === 'rtf') {
-        content = convertToRTF(content);
-        mimeType = 'application/rtf';
-    }
-    
-    const blob = new Blob([content], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
-    
-    showToast(`✅ Exported as ${format.toUpperCase()}!`);
-}
-
-// Import File Handler
-function handleFileImport(event) {
-    const file = event.target.files[0];
+// ── Import ────────────────────────────────────────────────────────────────────
+function handleImport(e) {
+    const file = e.target.files[0];
     if (!file) return;
-    
-    const fileName = file.name.toLowerCase();
-    const fileExtension = fileName.split('.').pop();
-    
-    // Validate file type
-    if (!['txt', 'md', 'rtf'].includes(fileExtension)) {
-        showToast('❌ Unsupported file type! Use TXT, MD, or RTF.');
+
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!['txt', 'md', 'rtf'].includes(ext)) {
+        showToast('❌ Only TXT, MD, RTF files supported');
+        fileInput.value = '';
         return;
     }
-    
+
     const reader = new FileReader();
-    
-    reader.onload = (e) => {
-        let content = e.target.result;
-        
-        // Parse RTF if needed
-        if (fileExtension === 'rtf') {
-            content = parseRTF(content);
+    reader.onload = ev => {
+        let content = ev.target.result;
+        if (ext === 'rtf') content = stripRTF(content);
+
+        if (textArea.value.length > 50 && !confirm('Replace existing content?')) {
+            fileInput.value = '';
+            return;
         }
-        
-        // Confirm if there's existing content
-        if (textArea.value && textArea.value.length > 50) {
-            if (!confirm('Replace existing content with imported file?')) {
-                fileInput.value = ''; // Reset file input
-                return;
-            }
-        }
-        
+
         textArea.value = content;
         updateAll();
-        showToast(`✅ Imported ${fileName}!`);
-        
-        // Reset file input
+        showToast(`📥 Imported ${file.name}`);
         fileInput.value = '';
     };
-    
-    reader.onerror = () => {
-        showToast('❌ Error reading file!');
-        fileInput.value = '';
-    };
-    
+    reader.onerror = () => { showToast('❌ Failed to read file'); fileInput.value = ''; };
     reader.readAsText(file);
 }
 
-// Convert text to RTF format
-function convertToRTF(text) {
-    // Escape special RTF characters
-    text = text.replace(/\\/g, '\\\\');
-    text = text.replace(/\{/g, '\\{');
-    text = text.replace(/\}/g, '\\}');
-    
-    // Convert newlines to RTF paragraph breaks
-    text = text.replace(/\n/g, '\\par\n');
-    
-    // Create RTF document
-    const rtf = `{\\rtf1\\ansi\\deff0
-{\\fonttbl{\\f0\\fnil\\fcharset0 Arial;}}
-{\\colortbl;\\red0\\green0\\blue0;}
-\\viewkind4\\uc1\\pard\\cf1\\f0\\fs24
-${text}
-}`;
-    
-    return rtf;
-}
-
-// Parse RTF to plain text
-function parseRTF(rtf) {
-    // Remove RTF header and control words
-    let text = rtf.replace(/\\rtf1[^{]*\{/g, '');
-    
-    // Remove font table
-    text = text.replace(/\{\\fonttbl[^}]*\}/g, '');
-    
-    // Remove color table
-    text = text.replace(/\{\\colortbl[^}]*\}/g, '');
-    
-    // Remove other control groups
-    text = text.replace(/\{\\[^}]*\}/g, '');
-    
-    // Convert RTF paragraph breaks to newlines
-    text = text.replace(/\\par\s*/g, '\n');
-    
-    // Remove common RTF control words
-    text = text.replace(/\\[a-z]+\d*\s*/gi, '');
-    
-    // Remove remaining braces
-    text = text.replace(/[{}]/g, '');
-    
-    // Clean up extra whitespace
-    text = text.replace(/\n{3,}/g, '\n\n');
-    text = text.trim();
-    
+function stripRTF(rtf) {
+    // Remove RTF groups and control words, extract plain text
+    let text = rtf
+        .replace(/\{\\[^{}]*\}/g, '')       // remove control groups
+        .replace(/\\par\b/g, '\n')           // paragraph breaks
+        .replace(/\\line\b/g, '\n')          // line breaks
+        .replace(/\\tab\b/g, '\t')           // tabs
+        .replace(/\\[a-z]+\-?\d*\s?/gi, '') // control words
+        .replace(/[{}\\]/g, '')              // remaining braces/backslashes
+        .replace(/\n{3,}/g, '\n\n')         // collapse excess newlines
+        .trim();
     return text;
 }
 
-// Keyboard Shortcuts
+// ── Export ────────────────────────────────────────────────────────────────────
+function exportFile(format) {
+    if (!textArea.value) { showToast('⚠️ Nothing to export!'); return; }
+
+    let content  = textArea.value;
+    let mime     = 'text/plain';
+    const stamp  = new Date().toISOString().slice(0, 10);
+    let filename = `mianscribe-${stamp}.${format}`;
+
+    if (format === 'rtf') {
+        content = buildRTF(content);
+        mime = 'application/rtf';
+    }
+
+    const blob = new Blob([content], { type: mime });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showToast(`📤 Exported as ${format.toUpperCase()}`);
+}
+
+function buildRTF(text) {
+    const escaped = text
+        .replace(/\\/g, '\\\\')
+        .replace(/\{/g, '\\{')
+        .replace(/\}/g, '\\}')
+        .replace(/\n\n/g, '\\par\\par\n')
+        .replace(/\n/g, '\\par\n');
+
+    return `{\\rtf1\\ansi\\deff0\n{\\fonttbl{\\f0\\fnil\\fcharset0 Arial;}}\n\\f0\\fs24 ${escaped}\n}`;
+}
+
+// ── Keyboard Shortcuts ────────────────────────────────────────────────────────
 function handleShortcuts(e) {
-    if (e.target.tagName === 'INPUT' && e.target.id !== 'textArea') return;
-    
-    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        saveContent();
-    }
-    
-    if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
-        e.preventDefault();
-        exportFile('txt');
-    }
-    
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'C') {
-        e.preventDefault();
-        copyText();
-    }
+    // Skip if typing in a regular input (not the textarea)
+    if (e.target.tagName === 'INPUT' && e.target !== textArea) return;
+
+    const ctrl = e.ctrlKey || e.metaKey;
+
+    if (ctrl && e.key === 's')                        { e.preventDefault(); saveContent(); }
+    if (ctrl && e.key === 'e')                        { e.preventDefault(); exportFile('txt'); }
+    if (ctrl && e.shiftKey && e.key === 'C')          { e.preventDefault(); copyText(); }
 }
 
-// Text Transformation Functions
-function transformText(type) {
-    if (!textArea.value) {
-        showToast('⚠️ Nothing to transform!');
-        return;
-    }
-    
-    let text = textArea.value;
-    let transformed = '';
-    
-    switch(type) {
-        case 'upper':
-            transformed = text.toUpperCase();
-            showToast('✅ Converted to UPPERCASE');
-            break;
-            
-        case 'lower':
-            transformed = text.toLowerCase();
-            showToast('✅ Converted to lowercase');
-            break;
-            
-        case 'capitalize':
-            // Capitalize first letter of each word
-            transformed = text.replace(/\b\w/g, char => char.toUpperCase());
-            showToast('✅ Capitalized Each Word');
-            break;
-            
-        case 'sentence':
-            // Sentence case: capitalize first letter after . ! ?
-            transformed = text.toLowerCase().replace(/(^\w|\.\s+\w|\!\s+\w|\?\s+\w)/g, char => char.toUpperCase());
-            showToast('✅ Converted to Sentence case');
-            break;
-            
-        case 'toggle':
-            // Toggle case: swap upper and lower
-            transformed = text.split('').map(char => {
-                return char === char.toUpperCase() ? char.toLowerCase() : char.toUpperCase();
-            }).join('');
-            showToast('✅ Toggled case');
-            break;
-            
-        default:
-            return;
-    }
-    
-    textArea.value = transformed;
-    updateAll();
+// ── Toast ─────────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3000);
 }
 
-// Toast Notification
-function showToast(message) {
-    toast.textContent = message;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3000);
-}
-
-// Start the app
+// ── Start ─────────────────────────────────────────────────────────────────────
 init();

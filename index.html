@@ -4,117 +4,117 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="MianScribe Pro - Advanced Writing Assistant">
-    <title>MianScribe Pro - Writing Assistant</title>
+    <title>MianScribe Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-    <!-- Animated Background -->
-    <div class="bg-gradient"></div>
-    
+    <div class="mesh-bg"></div>
     <div class="container">
-        <!-- Header -->
-        <header class="header">
+
+        <!-- HEADER -->
+        <header class="header glass">
             <div class="header-left">
                 <div class="logo">
-                    <span class="logo-icon">✍️</span>
+                    <div class="logo-ring"><span>✍️</span></div>
                     <div>
-                        <h1 class="app-title">MianScribe </h1>
-                        <p class="tagline">Write Better, Faster</p>
+                        <h1 class="app-title">MianScribe <span class="badge">Pro</span></h1>
+                        <p class="tagline">Write Better · Faster · Smarter</p>
+                    </div>
+                </div>
+            </div>
+            <div class="header-center">
+                <div class="live-stats">
+                    <div class="live-stat">
+                        <span class="live-label">Words</span>
+                        <span class="live-value" id="headerWords">0</span>
+                    </div>
+                    <div class="live-divider"></div>
+                    <div class="live-stat">
+                        <span class="live-label">Read Time</span>
+                        <span class="live-value" id="headerTime">0s</span>
+                    </div>
+                    <div class="live-divider"></div>
+                    <div class="live-stat">
+                        <span class="live-label">Chars</span>
+                        <span class="live-value" id="headerChars">0</span>
                     </div>
                 </div>
             </div>
             <div class="header-right">
-                <div class="quick-stats">
-                    <div class="stat-mini">
-                        <span class="icon">📝</span>
-                        <span id="headerWords">0</span>
-                    </div>
-                    <div class="stat-mini">
-                        <span class="icon">⏱️</span>
-                        <span id="headerTime">0s</span>
-                    </div>
-                </div>
-                <button class="icon-btn" id="themeToggle" title="Toggle Theme">
-                    <span id="themeIcon">🌙</span>
-                </button>
+                <button class="hdr-btn" id="toggleAnalyticsBtn">📊 Analytics</button>
+                <button class="theme-btn" id="themeToggle"><span id="themeIcon">🌙</span></button>
             </div>
         </header>
 
-        <!-- Main Content -->
+        <!-- MAIN GRID -->
         <div class="main-grid">
-            <!-- Editor Section -->
-            <main class="editor-card">
+
+            <!-- EDITOR PANEL -->
+            <main class="panel glass editor-panel">
+
                 <!-- Toolbar -->
                 <div class="toolbar">
-                    <div class="toolbar-group">
-                        <label>Font Size</label>
-                        <input type="range" id="fontSize" min="14" max="24" value="16">
-                        <span id="fontSizeVal">16px</span>
+                    <div class="toolbar-left">
+                        <div class="tool-group">
+                            <span class="tool-label">Size</span>
+                            <input type="range" id="fontSize" min="14" max="26" value="16" class="slider">
+                            <span class="pill" id="fontSizeVal">16px</span>
+                        </div>
+                        <div class="tool-group">
+                            <span class="tool-label">Font</span>
+                            <select id="fontFamily" class="sel">
+                                <option value="inter">Inter</option>
+                                <option value="serif">Serif</option>
+                                <option value="mono">Mono</option>
+                            </select>
+                        </div>
+                        <div class="tool-group">
+                            <label class="toggle-wrap">
+                                <input type="checkbox" id="hardLimit">
+                                <span class="toggle-track"></span>
+                                <span class="tool-label">Hard Limit</span>
+                            </label>
+                        </div>
                     </div>
-                    <div class="toolbar-group">
-                        <label>Font</label>
-                        <select id="fontFamily">
-                            <option value="system">System</option>
-                            <option value="serif">Serif</option>
-                            <option value="mono">Monospace</option>
-                        </select>
-                    </div>
-                    <div class="toolbar-group">
-                        <label>
-                            <input type="checkbox" id="hardLimit">
-                            Hard Limit
-                        </label>
-                    </div>
+                    <span class="saved-badge" id="savedBadge">● Auto-saved</span>
                 </div>
 
-                <!-- Text Transform Tools -->
-                <div class="transform-tools">
-                    <h3>🔤 Text Transform</h3>
+                <!-- Transform Bar -->
+                <div class="transform-bar">
+                    <span class="transform-label">🔤 Transform:</span>
                     <div class="transform-btns">
-                        <button class="tool-btn" id="upperCase" title="Convert to UPPERCASE">
-                            <span>AA</span> Upper
-                        </button>
-                        <button class="tool-btn" id="lowerCase" title="Convert to lowercase">
-                            <span>aa</span> Lower
-                        </button>
-                        <button class="tool-btn" id="capitalize" title="Capitalize Each Word">
-                            <span>Aa</span> Capitalize
-                        </button>
-                        <button class="tool-btn" id="sentenceCase" title="Sentence case">
-                            <span>Aa</span> Sentence
-                        </button>
-                        <button class="tool-btn" id="toggleCase" title="tOGGLE cASE">
-                            <span>aA</span> Toggle
-                        </button>
+                        <button class="t-btn" id="upperCase" title="UPPERCASE">AA</button>
+                        <button class="t-btn" id="lowerCase" title="lowercase">aa</button>
+                        <button class="t-btn" id="capitalize" title="Capitalize Words">Aa</button>
+                        <button class="t-btn" id="sentenceCase" title="Sentence case">A.</button>
+                        <button class="t-btn" id="toggleCase" title="tOGGLE cASE">aA</button>
                     </div>
                 </div>
 
-                <!-- Text Area -->
-                <textarea 
-                    id="textArea" 
-                    class="text-area" 
-                    placeholder="Start typing your masterpiece... ✨"
-                    spellcheck="true"
-                ></textarea>
+                <!-- Textarea -->
+                <div class="editor-wrap">
+                    <textarea id="textArea" class="text-area" placeholder="Start writing your masterpiece…" spellcheck="true"></textarea>
+                </div>
 
-                <!-- Stats Bar -->
-                <div class="stats-bar">
-                    <div class="stat-item">
-                        <span class="stat-icon">🔤</span>
+                <!-- Stats Row -->
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-icon-wrap">🔤</div>
                         <div>
                             <span class="stat-label">Characters</span>
                             <span class="stat-value" id="charCount">0</span>
                         </div>
                     </div>
-                    <div class="stat-item">
-                        <span class="stat-icon">📝</span>
+                    <div class="stat-card">
+                        <div class="stat-icon-wrap">📝</div>
                         <div>
                             <span class="stat-label">Words</span>
                             <span class="stat-value" id="wordCount">0</span>
                         </div>
                     </div>
-                    <div class="stat-item">
-                        <span class="stat-icon">⏳</span>
+                    <div class="stat-card">
+                        <div class="stat-icon-wrap">⏳</div>
                         <div>
                             <span class="stat-label">Remaining</span>
                             <span class="stat-value" id="remaining">280</span>
@@ -122,126 +122,145 @@
                     </div>
                 </div>
 
-                <!-- Limit Control -->
-                <div class="limit-section">
-                    <div class="limit-input">
-                        <label>Character Limit</label>
-                        <input type="number" id="charLimit" value="280" min="10" max="10000">
+                <!-- Limit Row -->
+                <div class="limit-row">
+                    <div class="limit-left">
+                        <span class="tool-label">Limit</span>
+                        <input type="number" id="charLimit" value="280" min="10" max="10000" class="limit-input">
+                        <div class="presets">
+                            <button class="preset" data-limit="140">Tweet</button>
+                            <button class="preset" data-limit="280">X Post</button>
+                            <button class="preset" data-limit="500">Short</button>
+                            <button class="preset" data-limit="2000">Long</button>
+                        </div>
                     </div>
-                    <div class="presets">
-                        <button class="preset" data-limit="140">Tweet</button>
-                        <button class="preset" data-limit="280">X Post</button>
-                        <button class="preset" data-limit="500">Short</button>
-                        <button class="preset" data-limit="2000">Long</button>
-                    </div>
-                    <div class="usage">
-                        <span>Usage: <strong id="usage">0%</strong></span>
+                    <div class="limit-right">
+                        <span class="tool-label">Usage</span>
+                        <span class="usage-value" id="usage">0%</span>
                     </div>
                 </div>
 
-                <!-- Progress Bar -->
-                <div class="progress">
+                <!-- Progress -->
+                <div class="progress-track">
                     <div class="progress-fill" id="progress"></div>
                 </div>
 
                 <!-- Action Buttons -->
                 <div class="actions">
-                    <button class="btn btn-primary" id="copyBtn">
-                        <span>📋</span> Copy
-                    </button>
-                    <button class="btn btn-secondary" id="clearBtn">
-                        <span>🔄</span> Clear
-                    </button>
-                    <button class="btn btn-accent" id="micBtn">
-                        <span>🎤</span> Speak
-                    </button>
-                    <button class="btn btn-success" id="saveBtn">
-                        <span>�</span> Save
-                    </button>
+                    <button class="action-btn primary" id="copyBtn">📋 Copy</button>
+                    <button class="action-btn secondary" id="clearBtn">🔄 Clear</button>
+                    <button class="action-btn accent" id="micBtn">🎤 Speak</button>
+                    <button class="action-btn success" id="saveBtn">💾 Save</button>
                 </div>
 
-                <!-- Import/Export Section -->
-                <div class="export-section">
-                    <div class="section-group">
-                        <h3>� Import</h3>
-                        <div class="import-btns">
-                            <input type="file" id="fileInput" accept=".txt,.md,.rtf" style="display: none;">
-                            <button class="btn-small" id="importBtn">� Upload File</button>
-                        </div>
+                <!-- Import / Export -->
+                <div class="io-section">
+                    <div class="io-group">
+                        <h3 class="io-title">📥 Import</h3>
+                        <input type="file" id="fileInput" accept=".txt,.md,.rtf" style="display:none">
+                        <button class="io-btn" id="importBtn">📁 Upload File</button>
                     </div>
-                    <div class="section-group">
-                        <h3>📤 Export</h3>
-                        <div class="export-btns">
-                            <button class="btn-small" id="exportTxt">📄 TXT</button>
-                            <button class="btn-small" id="exportMd">📝 MD</button>
-                            <button class="btn-small" id="exportRtf">📃 RTF</button>
+                    <div class="io-divider"></div>
+                    <div class="io-group">
+                        <h3 class="io-title">📤 Export</h3>
+                        <div class="io-btns">
+                            <button class="io-btn" id="exportTxt">📄 TXT</button>
+                            <button class="io-btn" id="exportMd">📝 MD</button>
+                            <button class="io-btn" id="exportRtf">📃 RTF</button>
                         </div>
                     </div>
                 </div>
+
             </main>
 
-            <!-- Analytics Sidebar -->
-            <aside class="analytics-card" id="analyticsPanel">
-                <div class="panel-header">
-                    <h2>📊 Analytics</h2>
+            <!-- ANALYTICS PANEL -->
+            <aside class="panel glass analytics-panel" id="analyticsPanel">
+                <div class="panel-hdr">
+                    <h2 class="panel-title">📊 Analytics</h2>
                     <button class="close-btn" id="closeAnalytics">✕</button>
                 </div>
-
-                <div class="analytics-grid">
-                    <div class="analytics-item">
-                        <span class="analytics-icon">📄</span>
+                <div class="a-grid">
+                    <div class="a-card">
+                        <span class="a-icon">📄</span>
                         <div>
-                            <span class="analytics-label">Sentences</span>
-                            <span class="analytics-value" id="sentences">0</span>
+                            <span class="a-label">Sentences</span>
+                            <span class="a-value" id="sentences">0</span>
                         </div>
                     </div>
-                    <div class="analytics-item">
-                        <span class="analytics-icon">¶</span>
+                    <div class="a-card">
+                        <span class="a-icon">¶</span>
                         <div>
-                            <span class="analytics-label">Paragraphs</span>
-                            <span class="analytics-value" id="paragraphs">0</span>
+                            <span class="a-label">Paragraphs</span>
+                            <span class="a-value" id="paragraphs">0</span>
                         </div>
                     </div>
-                    <div class="analytics-item">
-                        <span class="analytics-icon">⏱️</span>
+                    <div class="a-card">
+                        <span class="a-icon">⏱</span>
                         <div>
-                            <span class="analytics-label">Read Time</span>
-                            <span class="analytics-value" id="readTime">0s</span>
+                            <span class="a-label">Read Time</span>
+                            <span class="a-value" id="readTime">—</span>
                         </div>
                     </div>
-                    <div class="analytics-item">
-                        <span class="analytics-icon">📏</span>
+                    <div class="a-card">
+                        <span class="a-icon">📏</span>
                         <div>
-                            <span class="analytics-label">Avg Word</span>
-                            <span class="analytics-value" id="avgWord">0</span>
+                            <span class="a-label">Avg Word</span>
+                            <span class="a-value" id="avgWord">0</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="insights">
-                    <h3>💡 Insights</h3>
-                    <ul id="insightsList">
-                        <li>Start typing to see insights...</li>
+                <!-- Score Ring -->
+                <div class="score-section">
+                    <div class="score-ring-wrap">
+                        <svg class="score-ring" viewBox="0 0 80 80">
+                            <defs>
+                                <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#6366f1"/>
+                                    <stop offset="100%" stop-color="#ec4899"/>
+                                </linearGradient>
+                            </defs>
+                            <circle class="ring-bg" cx="40" cy="40" r="32"/>
+                            <circle class="ring-fill" id="ringFill" cx="40" cy="40" r="32"
+                                stroke="url(#ringGrad)"
+                                stroke-dasharray="201"
+                                stroke-dashoffset="201"/>
+                        </svg>
+                        <div class="score-center">
+                            <span class="score-num" id="scoreNum">0</span>
+                            <span class="score-lbl">Score</span>
+                        </div>
+                    </div>
+                    <div class="score-info">
+                        <p class="score-title" id="scoreTitle">Start Writing</p>
+                        <p class="score-desc" id="scoreDesc">Your writing score will appear as you type.</p>
+                    </div>
+                </div>
+
+                <!-- Insights -->
+                <div class="insights-section">
+                    <h3 class="insights-title">💡 Insights</h3>
+                    <ul class="insights-list" id="insightsList">
+                        <li>Start typing to see insights…</li>
                     </ul>
                 </div>
             </aside>
         </div>
 
-        <!-- Footer -->
+        <!-- FOOTER -->
         <footer class="footer">
-            <p>© 2026 MianScribe Pro • Built with ❤️</p>
-            <p class="shortcuts">
-                <kbd>Ctrl+S</kbd> Save • 
-                <kbd>Ctrl+E</kbd> Export • 
-                <kbd>Ctrl+D</kbd> Focus
-            </p>
+            <p>© 2026 <strong>MianScribe Pro</strong> · Built with ❤️ using Vanilla JS</p>
+            <div class="footer-shortcuts">
+                <kbd>Ctrl+S</kbd> Save &nbsp;
+                <kbd>Ctrl+E</kbd> Export &nbsp;
+                <kbd>Ctrl+Shift+C</kbd> Copy
+            </div>
         </footer>
     </div>
 
     <!-- Toast -->
     <div class="toast" id="toast"></div>
 
-    <!-- Script -->
     <script src="assets/js/app.js"></script>
 </body>
 </html>
