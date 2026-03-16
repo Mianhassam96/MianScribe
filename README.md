@@ -94,9 +94,6 @@ A powerful, modern writing workspace built with vanilla JavaScript. Track your w
 5. **Shortcuts**: Use keyboard shortcuts for faster workflow
 
 
-
-
-
 ## 🎨 Technologies
 
 - **HTML5**: Semantic markup
@@ -124,7 +121,7 @@ Having issues? Check:
 3. localStorage is allowed
 4. Microphone permissions (for speech)
 
-## 🎉 What's New in Pro
+## 🎉 What's New 
 
 - ✅ Advanced analytics panel
 - ✅ Auto-save & restore
@@ -138,7 +135,7 @@ Having issues? Check:
 
 ---
 
-**Built with ❤️ using Vanilla JavaScript**
+**Built with ❤️ By MultiMian**
 
 No frameworks. No dependencies. Just clean, modern web development.
 
